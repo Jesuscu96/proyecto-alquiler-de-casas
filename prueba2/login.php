@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if ($datos) {
         $sesion->crearSesion($datos);
-        header("Location: admin/index.php");
+        header("Location: ./admin/gestion-casa.php");
         exit();
     } else {
         $error = "Usuario o contraseña incorrectos";

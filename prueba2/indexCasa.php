@@ -35,7 +35,7 @@ $casasVip = $casaObj->getCasasVip();
           <li class="nav-item"><a class="nav-link active" href="#">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Buscar Casas</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Favoritos</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="./login.php">Login</a></li>
           
         </ul>
       </div>

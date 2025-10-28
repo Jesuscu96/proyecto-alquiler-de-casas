@@ -82,7 +82,7 @@ class Casas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
     }
-    public function insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad, 
+    /* public function insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad, 
         $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas) {
 
         $db = new Connection();
@@ -99,10 +99,60 @@ class Casas {
 
         $stmt->execute();
         $db->closeConnection($conn);
+    } */
+    public function insertarCasaCompleta(
+    $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
+    $nombre, $capacidad, $precio_noche,
+    $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+    $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+    $num_horno, $num_microondas, $num_nevera, $num_congelador,
+    $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+    $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+    $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+    $tiene_secador_pelo, $imagen_principal
+    ) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+
+        $sql = "INSERT INTO casas_vacacionales (
+            id_propietario, id_comunidad, id_provincia, id_ciudad, nombre, capacidad, precio_noche,
+            num_banos, num_cocinas, num_hab_individuales, num_hab_familiares,
+            num_aparcamientos, num_lavadora, num_secadora, num_lavavajillas,
+            num_horno, num_microondas, num_nevera, num_congelador,
+            tiene_wifi, num_ascensores, tiene_calefaccion, tiene_aire_acondicionado,
+            tiene_piscina, tiene_banera, tiene_barbacoa, tiene_chimenea,
+            tiene_adaptacion_discapacitados, tiene_jardin, tiene_patio, tiene_sala_cine,
+            tiene_secador_pelo, imagen_principal
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, ?
+        )";
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bind_param("iiiisidiiiiiiiiiiiiiiiiiiiiiiiiiiis",
+            $id_propietario, $id_comunidad, $id_provincia, $id_ciudad, $nombre, $capacidad, $precio_noche,
+            $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+            $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+            $num_horno, $num_microondas, $num_nevera, $num_congelador,
+            $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+            $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+            $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+            $tiene_secador_pelo, $imagen_principal);
+
+        $stmt->execute();
+        $db->closeConnection($conn);
     }
 
 
-    public function actualizarCasa($id_casa, $id_propietario, $id_comunidad, $id_provincia, 
+
+   /*  public function actualizarCasa($id_casa, $id_propietario, $id_comunidad, $id_provincia, 
     $id_ciudad, $nombre, $capacidad, $precio_noche, $disponible, $num_banos, $num_cocinas) {
 
         $db = new Connection();
@@ -119,6 +169,49 @@ class Casas {
             $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
             $nombre, $capacidad, $precio_noche, $disponible,
             $num_banos, $num_cocinas, $id_casa);
+
+        $stmt->execute();
+        $db->closeConnection($conn);
+    } */
+    public function actualizarCasaCompleta(
+        $id_casa, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
+        $nombre, $capacidad, $precio_noche,
+        $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+        $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+        $num_horno, $num_microondas, $num_nevera, $num_congelador,
+        $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+        $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+        $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+        $tiene_secador_pelo, $imagen_principal
+    ) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+
+        $sql = "UPDATE casas_vacacionales SET
+            id_propietario = ?, id_comunidad = ?, id_provincia = ?, id_ciudad = ?,
+            nombre = ?, capacidad = ?, precio_noche = ?,
+            num_banos = ?, num_cocinas = ?, num_hab_individuales = ?, num_hab_familiares = ?,
+            num_aparcamientos = ?, num_lavadora = ?, num_secadora = ?, num_lavavajillas = ?,
+            num_horno = ?, num_microondas = ?, num_nevera = ?, num_congelador = ?,
+            tiene_wifi = ?, num_ascensores = ?, tiene_calefaccion = ?, tiene_aire_acondicionado = ?,
+            tiene_piscina = ?, tiene_banera = ?, tiene_barbacoa = ?, tiene_chimenea = ?,
+            tiene_adaptacion_discapacitados = ?, tiene_jardin = ?, tiene_patio = ?, tiene_sala_cine = ?,
+            tiene_secador_pelo = ?, imagen_principal = ?
+            WHERE id_casa = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "iiiisidiiiiiiiiiiiiiiiiiiiiiiisii",
+            $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
+            $nombre, $capacidad, $precio_noche,
+            $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+            $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+            $num_horno, $num_microondas, $num_nevera, $num_congelador,
+            $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+            $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+            $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+            $tiene_secador_pelo, $imagen_principal, $id_casa
+        );
 
         $stmt->execute();
         $db->closeConnection($conn);
