@@ -2,46 +2,42 @@
 <?php
 require_once("database.php");
 
-class Casas {
-   
-    public function getAll() {
+class Ubicacion {
+    public function getAllComunidades() {
         $db = new Connection();
         $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM casas_vacaionales";
-        
+
+        $sql = "SELECT com.* FROM comunidades com ORDER BY com.nombre;";
+
         $result = $conn->query($sql);
         $db->closeConnection($conn);
-        //cuando devuelve un solo resultado
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
-    public function getCasasVip() {
+    public function getAllProvincias() {
         $db = new Connection();
         $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM casas_vacaionales ORDER BY  precio_noche DESC LIMIT 3";
-        
+
+        $sql = "SELECT p.*, com.nombre AS comunidad FROM provincias p LEFT JOIN comunidades com ON com.id_comunidad = p.id_comunidad ORDER BY p.nombre;";
+
         $result = $conn->query($sql);
         $db->closeConnection($conn);
-        //cuando devuelve un solo resultado
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
-    public function getCasaById($id) {
+    public function getAllCiudades() {
         $db = new Connection();
         $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM casas_vacacionales WHERE id_casa = ?";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
+
+        $sql = "SELECT ci.*, p.nombre AS provincia, com.nombre AS comunidad FROM ciudades ci LEFT JOIN provincias p ON p.id_provincia = ci.id_provincia LEFT JOIN comunidades com ON com.id_comunidad = p.id_comunidad ORDER BY ci.nombre;";
+
+        $result = $conn->query($sql);
         $db->closeConnection($conn);
-        //cuando devuelve un solo resultado
-        return $result ? $result->fetch_assoc() : [];
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
-    public function insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad, 
+
+
+
+    
+    /* public function insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad, 
     $nombre, $capacidad, $precio_noche, $disponible, $num_banos, $num_cocinas, $telefono) {
 
         $db = new Connection();
@@ -91,7 +87,7 @@ class Casas {
         $stmt->execute();
 
         $db->closeConnection($conn);
-    }
+    } */
 
 }
 ?>
