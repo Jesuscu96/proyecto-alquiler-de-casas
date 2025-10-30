@@ -1,14 +1,12 @@
-
-# Crear el archivo gestion-casas.php
-gestion_casas = """<?php
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once "./admin/includes/crudCasas.php";
-require_once "./admin/includes/crudUbicacion.php";
-require_once "./admin/includes/crudUsuarios.php";
-require_once "./admin/includes/sessions.php";
+require_once "./includes/crudCasas.php";
+require_once "./includes/crudUbicacion.php";
+require_once "./includes/crudUsuarios.php";
+require_once "./includes/sessions.php";
 
 // Verificar sesión de administrador
 // verificarSesionAdmin();
@@ -22,6 +20,118 @@ $comunidades = $ubicacionObj->getAllComunidades();
 $provincias = $ubicacionObj->getAllProvincias();
 $ciudades = $ubicacionObj->getAllCiudades();
 $propietarios = $usuariosObj->getAll();
+
+$accion = $_GET['accion'] ?? null;
+$id = $_GET['id'] ?? null;
+
+if($accion == "eliminar" && $id) {
+    $casaObj->eliminarCasa($id);
+    $mensaje = "Casa eliminada correctamente.";
+}
+$datos_casa = [
+    'id_propietario' => '',
+    'id_comunidad' => '',
+    'id_provincia' => '',
+    'id_ciudad' => '',
+    'nombre' => '',
+    'capacidad' => '',
+    'precio_noche' => '',
+    'num_banos' => '',
+    'num_cocinas' => '',
+    'num_hab_individuales' => '',
+    'num_hab_familiares' => '',
+    'num_aparcamientos' => '',
+    'num_lavadora' => '',
+    'num_secadora' => '',
+    'num_lavavajillas' => '',
+    'num_horno' => '',
+    'num_microondas' => '',
+    'num_nevera' => '',
+    'num_congelador' => '',
+    'tiene_wifi' => '',
+    'num_ascensores' => '',
+    'tiene_calefaccion' => '',
+    'tiene_aire_acondicionado' => '',
+    'tiene_piscina' => '',
+    'tiene_banera' => '',
+    'tiene_barbacoa' => '',
+    'tiene_chimenea' => '',
+    'tiene_adaptacion_discapacitados' => '',
+    'tiene_jardin' => '',
+    'tiene_patio' => '',
+    'tiene_sala_cine' => '',
+    'tiene_secador_pelo' => '',
+    'imagen_principal' => ''
+]; //para que el value del formulario salga vaci­o
+
+if ($accion === "editar" && $id) {
+  $datos_casa = $casaObj->getCasaById($id); 
+}
+// Procesar el formulario de creacion o edicion de categorÃ­a
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $id_propietario = $_POST['id_propietario'] ?? '';
+    $id_comunidad = $_POST['id_comunidad'] ?? '';
+    $id_provincia = $_POST['id_provincia'] ?? '';
+    $id_ciudad = $_POST['id_ciudad'] ?? '';
+    $nombre = $_POST['nombre'] ?? '';
+    $capacidad = $_POST['capacidad'] ?? '';
+    $precio_noche = $_POST['precio_noche'] ?? '';
+    $num_banos = $_POST['num_banos'] ?? '';
+    $num_cocinas = $_POST['num_cocinas'] ?? '';
+    $num_hab_individuales = $_POST['num_hab_individuales'] ?? '';
+    $num_hab_familiares = $_POST['num_hab_familiares'] ?? '';
+    $num_aparcamientos = $_POST['num_aparcamientos'] ?? '';
+    $num_lavadora = $_POST['num_lavadora'] ?? '';
+    $num_secadora = $_POST['num_secadora'] ?? '';
+    $num_lavavajillas = $_POST['num_lavavajillas'] ?? '';
+    $num_horno = $_POST['num_horno'] ?? '';
+    $num_microondas = $_POST['num_microondas'] ?? '';
+    $num_nevera = $_POST['num_nevera'] ?? '';
+    $num_congelador = $_POST['num_congelador'] ?? '';
+    $tiene_wifi = $_POST['tiene_wifi'] ?? 0;
+    $num_ascensores = $_POST['num_ascensores'] ?? 0;
+    $tiene_calefaccion = $_POST['tiene_calefaccion'] ?? 0;
+    $tiene_aire_acondicionado = $_POST['tiene_aire_acondicionado'] ?? 0;
+    $tiene_piscina = $_POST['tiene_piscina'] ?? 0;
+    $tiene_banera = $_POST['tiene_banera'] ?? 0;
+    $tiene_barbacoa = $_POST['tiene_barbacoa'] ?? 0;
+    $tiene_chimenea = $_POST['tiene_chimenea'] ?? 0;
+    $tiene_adaptacion_discapacitados = $_POST['tiene_adaptacion_discapacitados'] ?? 0;
+    $tiene_jardin = $_POST['tiene_jardin'] ?? 0;
+    $tiene_patio = $_POST['tiene_patio'] ?? 0;
+    $tiene_sala_cine = $_POST['tiene_sala_cine'] ?? 0;
+    $tiene_secador_pelo = $_POST['tiene_secador_pelo'] ?? 0;
+    $imagen_principal = $_POST['imagen_principal'] ?? '';
+    
+    if ($accion === "crear" ) {
+        $casaObj->insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
+        $nombre, $capacidad, $precio_noche,
+        $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+        $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+        $num_horno, $num_microondas, $num_nevera, $num_congelador,
+        $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+        $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+        $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+        $tiene_secador_pelo, $imagen_principal);
+        header("Location: casas.php");
+        exit();
+        
+    } elseif ($accion === "editar" && $id) {
+        // Actualización sin cambiar contraseña
+        $casaObj->actualizarCasa($id_casa, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad, $nombre, $capacidad, $precio_noche,
+        $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
+        $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
+        $num_horno, $num_microondas, $num_nevera, $num_congelador,
+        $tiene_wifi, $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
+        $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
+        $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio, $tiene_sala_cine,
+        $tiene_secador_pelo, $imagen_principal);
+        
+    }
+    header("Location: casas.php");
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -87,9 +197,10 @@ $propietarios = $usuariosObj->getAll();
           <div class="card-header">Disponibles</div>
           <div class="card-body">
             <h5 class="card-title">
+                En desarrollo
               <?php
-              $disponibles = array_filter($casas, fn($c) => isset($c['disponible']) && $c['disponible']);
-              echo count($disponibles);
+              //$disponibles = array_filter($casas, fn($c) => isset($c['disponible']) && $c['disponible']);
+              //echo count($disponibles);
               ?>
             </h5>
             <p class="card-text">Para reservar</p>
@@ -115,6 +226,7 @@ $propietarios = $usuariosObj->getAll();
           <div class="card-header">VIP</div>
           <div class="card-body">
             <h5 class="card-title">
+                En desarrollo
               <?php
               $vip = array_filter($casas, fn($c) => isset($c['es_vip']) && $c['es_vip']);
               echo count($vip);
@@ -363,10 +475,3 @@ $propietarios = $usuariosObj->getAll();
   </script>
 </body>
 </html>
-"""
-
-# Guardar el archivo
-with open('gestion-casas.php', 'w', encoding='utf-8') as f:
-    f.write(gestion_casas)
-
-print("✓ Archivo gestion-casas.php creado exitosamente")

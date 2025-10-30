@@ -100,7 +100,7 @@ class Casas {
         $stmt->execute();
         $db->closeConnection($conn);
     } */
-    public function insertarCasaCompleta(
+    public function insertarCasa(
     $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
     $nombre, $capacidad, $precio_noche,
     $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
@@ -173,7 +173,7 @@ class Casas {
         $stmt->execute();
         $db->closeConnection($conn);
     } */
-    public function actualizarCasaCompleta(
+    public function actualizarCasa(
         $id_casa, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
         $nombre, $capacidad, $precio_noche,
         $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
