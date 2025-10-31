@@ -273,52 +273,7 @@ if ($accion === 'eliminar_confirmar' && $id) {
         </div>
 
         <!-- FILTROS -->
-        <h2 class="section-title">
-            <i class="bi bi-funnel"></i> Filtros de Búsqueda
-        </h2>
-        <div class="filters-card">
-            <form method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label small"><i class="bi bi-map"></i> Provincia</label>
-                    <select class="form-select" name="provincia">
-                        <option value="">Todas</option>
-                        <?php foreach ($provincias as $prov): ?>
-                            <option value="<?= $prov['id_provincia'] ?>" <?= $filtro_provincia == $prov['id_provincia'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($prov['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small"><i class="bi bi-geo-alt"></i> Ciudad</label>
-                    <select class="form-select" name="ciudad">
-                        <option value="">Todas</option>
-                        <?php foreach ($ciudades as $city): ?>
-                            <option value="<?= $city['id_ciudad'] ?>" <?= $filtro_ciudad == $city['id_ciudad'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($city['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small"><i class="bi bi-people"></i> Cap. mín.</label>
-                    <input type="number" class="form-control" name="capacidad" min="0" value="<?= $filtro_capacidad ?>" placeholder="0">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small"><i class="bi bi-euro"></i> Precio máx.</label>
-                    <input type="number" class="form-control" name="precio" min="0" step="0.01" value="<?= $filtro_precio != 999999 ? $filtro_precio : '' ?>" placeholder="999">
-                </div>
-                <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary w-50">
-                        <i class="bi bi-search"></i> Filtrar
-                    </button>
-                    <a href="casasamedia.php" class="btn btn-secondary w-50">
-                        <i class="bi bi-arrow-counterclockwise"></i> Limpiar
-                    </a>
-                </div>
-            </form>
-        </div>
-
+        
         <!-- BOTÓN CREAR CASA -->
         <h2 class="section-title">
             <i class="bi bi-tools"></i> Gestión de Casas
@@ -379,7 +334,7 @@ if ($accion === 'eliminar_confirmar' && $id) {
                                         ℹ️ Info
                                     </button>
                                     <button type="button" class="btn btn-warning btn-action" 
-                                            onclick="abrirModalEditar(<?= $casa['id_casa'] ?>)">
+                                            onclick="abrirModalEditar(<?= $casa['id_casa'] ?>)"value="accion=editar&id=<?=$casa['id_casa']?>">
                                         ✏️ Editar
                                     </button>
                                     <button type="button" class="btn btn-danger btn-action" 
@@ -496,7 +451,7 @@ if ($accion === 'eliminar_confirmar' && $id) {
                             </div>
                             <div class="col-md-6">
                                 <label for="precio_noche" class="form-label">Precio/Noche (€) *</label>
-                                <input type="number" class="form-control" id="precio_noche" name="precio_noche" min="0" step="0.01" value="0" required>
+                                <input type="number" class="form-control" id="precio_noche" name="precio_noche" min="0" step="0.01" value="<?= $accion === 'editar' ? $datos_casa['precio_noche'] :  ?>" required>
                             </div>
                         </div>
 
