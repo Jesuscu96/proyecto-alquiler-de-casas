@@ -20,6 +20,10 @@ $provincias = $ubicacionObj->getAllProvincias();
 $ciudades = $ubicacionObj->getAllCiudades();
 $propietarios = $usuariosObj->getAll();
 
+// Parámetros de acción
+$accion = $_GET['accion'] ?? null;
+$id = $_GET['id'] ?? null;
+
 // Filtros
 $filtro_provincia = $_GET['provincia'] ?? '';
 $filtro_ciudad = $_GET['ciudad'] ?? '';
@@ -29,18 +33,16 @@ $filtro_precio = (float)($_GET['precio'] ?? 999999);
 // Aplicar filtros
 $casas = array_filter($todasLasCasas, function($casa) {
     global $filtro_provincia, $filtro_ciudad, $filtro_capacidad, $filtro_precio;
-
     if ($filtro_provincia && $casa['id_provincia'] != $filtro_provincia) return false;
     if ($filtro_ciudad && $casa['id_ciudad'] != $filtro_ciudad) return false;
     if ($casa['capacidad'] < $filtro_capacidad) return false;
     if ($casa['precio_noche'] > $filtro_precio) return false;
-
     return true;
 });
 
-$casas = array_values($casas); // Reindexar array
+$casas = array_values($casas);
 
-// Paginación - 8 casas por página
+// Paginación
 $pagina = (int)($_GET['pagina'] ?? 1);
 $por_pagina = 8;
 $total_casas = count($casas);
@@ -56,12 +58,7 @@ $total_casas_todos = count($todasLasCasas);
 $total_casas_vip = count($casas_vip);
 $precio_promedio = !empty($todasLasCasas) ? array_sum(array_column($todasLasCasas, 'precio_noche')) / $total_casas_todos : 0;
 
-$accion = $_GET['accion'] ?? null;
-$id = $_GET['id'] ?? null;
-$errores = [];
-$mensaje_exito = '';
-
-// Datos por defecto
+// Datos por defecto del formulario
 $datos_casa = [
     'id_propietario' => '',
     'id_comunidad' => '',
@@ -80,7 +77,7 @@ $datos_casa = [
     'num_lavavajillas' => 0,
     'num_horno' => 0,
     'num_microondas' => 0,
-    'num_nevera' => 0,
+    'num_nevera' => 1,
     'num_congelador' => 0,
     'tiene_wifi' => 0,
     'num_ascensores' => 0,
@@ -95,7 +92,7 @@ $datos_casa = [
     'tiene_patio' => 0,
     'tiene_sala_cine' => 0,
     'tiene_secador_pelo' => 0,
-    'imagen_principal' => null
+    'imagen_principal' => ''
 ];
 
 // Si es editar, cargar datos
@@ -103,7 +100,15 @@ if ($accion === "editar" && $id) {
     $datos_casa = $casaObj->getCasaById($id);
 }
 
+// Procesar eliminación
+if ($accion === 'eliminar' && $id) {
+    $casaObj->eliminarCasa($id);
+    header("Location: casas2.php");
+    exit();
+}
+
 // Procesar formulario POST
+$errores = [];
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_propietario = $_POST['id_propietario'] ?? '';
     $id_comunidad = $_POST['id_comunidad'] ?? '';
@@ -122,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $num_lavavajillas = (int)($_POST['num_lavavajillas'] ?? 0);
     $num_horno = (int)($_POST['num_horno'] ?? 0);
     $num_microondas = (int)($_POST['num_microondas'] ?? 0);
-    $num_nevera = (int)($_POST['num_nevera'] ?? 0);
+    $num_nevera = (int)($_POST['num_nevera'] ?? 1);
     $num_congelador = (int)($_POST['num_congelador'] ?? 0);
     $tiene_wifi = isset($_POST['tiene_wifi']) ? 1 : 0;
     $num_ascensores = (int)($_POST['num_ascensores'] ?? 0);
@@ -138,24 +143,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tiene_sala_cine = isset($_POST['tiene_sala_cine']) ? 1 : 0;
     $tiene_secador_pelo = isset($_POST['tiene_secador_pelo']) ? 1 : 0;
     
+    // Manejo de imagen
+    $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
     if (!empty($_FILES['imagen_principal']['name'])) {
         $carpeta = './imagenes/';
         $nombreArchivo = basename($_FILES['imagen_principal']['name']);
         $rutaArchivo = $carpeta . $nombreArchivo;
-
         if (move_uploaded_file($_FILES['imagen_principal']['tmp_name'], $rutaArchivo)) {
             $imagen_guardada = $rutaArchivo;
         } else {
-            $errores[] = "Error al subir la imagen.";
+            $errores['imagen'] = "Error al subir la imagen.";
         }
-    } else {
-        $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
     }
 
-
     // Validaciones
-    $errores = [];
-
     if (empty($id_propietario)) $errores['id_propietario'] = "Selecciona un propietario.";
     if (empty($id_comunidad)) $errores['id_comunidad'] = "Selecciona una comunidad.";
     if (empty($id_provincia)) $errores['id_provincia'] = "Selecciona una provincia.";
@@ -167,7 +168,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($num_cocinas < 1) $errores['num_cocinas'] = "Debe tener al menos 1 cocina.";
     if ($num_nevera < 1) $errores['num_nevera'] = "Debe tener al menos 1 nevera.";
 
-    // Guardar
+    // Guardar si no hay errores
     if (empty($errores)) {
         try {
             if ($accion === 'crear') {
@@ -180,10 +181,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
                     $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
                     $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio,
-                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_principal
+                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
                 );
-                $mensaje_exito = "✅ Casa creada exitosamente.";
-                header("Refresh: 2; url=casasamedia.php");
             } elseif ($accion === 'editar' && $id) {
                 $casaObj->actualizarCasa(
                     $id, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
@@ -194,26 +193,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
                     $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
                     $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio,
-                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_principal
+                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
                 );
-                $mensaje_exito = "✅ Casa actualizada exitosamente.";
-                header("Refresh: 2; url=casasamedia.php");
             }
+            header("Location: casas2.php");
+            exit();
         } catch (Exception $e) {
             $errores['general'] = "Error: " . $e->getMessage();
         }
-    }
-}
-
-// Procesar eliminación
-if ($accion === 'eliminar_confirmar' && $id) {
-    try {
-        $casaObj->eliminarCasa($id);
-        $mensaje_exito = "✅ Casa eliminada exitosamente.";
-        header("Location: casasamedia.php");
-        exit();
-    } catch (Exception $e) {
-        $errores['general'] = "Error al eliminar: " . $e->getMessage();
     }
 }
 ?>
@@ -223,583 +210,438 @@ if ($accion === 'eliminar_confirmar' && $id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Casas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="./assets/css/styles.css">
+    <title>Gestión de Casas Vacacionales</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./assets/css/admin.css">
 </head>
 <body>
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="casasamedia.php">
-                <i class="bi bi-house-heart"></i> ADMINISTRACIÓN DE CASAS
-            </a>
-            <span class="navbar-text text-white-50">Panel Administrativo</span>
-        </div>
-    </nav>
+    <!-- Navbar -->
+    <?php include("./menu.php"); ?>
 
-    <div class="container-fluid">
-
-        <!-- MENSAJES -->
-        <?php if (!empty($mensaje_exito)): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?= htmlspecialchars($mensaje_exito) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
-        <!-- ESTADÍSTICAS -->
-        <h2 class="section-title">
-            <i class="bi bi-graph-up"></i> Panel de Control
-        </h2>
+    <div class="container-fluid mt-4">
+        
+        <!-- Estadísticas (siempre visibles) -->
         <div class="stats-container">
             <div class="stat-card total">
-                <i class="bi bi-houses stat-icon"></i>
+                <span class="stat-icon">🏠</span>
                 <h3><?= $total_casas_todos ?></h3>
-                <p><i class="bi bi-house"></i> Total de Casas</p>
+                <p><i class="bi bi-house-fill"></i> Total de Casas</p>
             </div>
             <div class="stat-card vip">
-                <i class="bi bi-crown stat-icon"></i>
+                <span class="stat-icon">⭐</span>
                 <h3><?= $total_casas_vip ?></h3>
                 <p><i class="bi bi-star-fill"></i> Casas Premium Accesibles</p>
             </div>
             <div class="stat-card precio">
-                <i class="bi bi-currency-euro stat-icon"></i>
-                <h3>€<?= number_format($precio_promedio, 2) ?></h3>
-                <p><i class="bi bi-graph-up"></i> Precio Promedio</p>
+                <span class="stat-icon">💰</span>
+                <h3>€<?= number_format($precio_promedio, 0) ?></h3>
+                <p><i class="bi bi-cash-coin"></i> Precio Promedio</p>
             </div>
         </div>
 
-        <!-- FILTROS -->
-        
-        <!-- BOTÓN CREAR CASA -->
-        <h2 class="section-title">
-            <i class="bi bi-tools"></i> Gestión de Casas
-        </h2>
-        <div class="mb-3">
-            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalCasa" onclick="abrirModalCrear()">
-                <i class="bi bi-plus-circle"></i> Crear Nueva Casa
-            </button>
-            <span class="ms-3 text-muted">
-                Mostrando <strong><?= count($casas_pagina) ?></strong> de <strong><?= $total_casas ?></strong> casas
-            </span>
-        </div>
-
-        <!-- TABLA DE CASAS -->
-        <?php if (!empty($casas_pagina)): ?>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th><i class="bi bi-image"></i> Imagen</th>
-                            <th><i class="bi bi-tags"></i> Nombre</th>
-                            <th><i class="bi bi-geo-alt"></i> Ubicación</th>
-                            <th><i class="bi bi-euro"></i> Precio Por Noche</th>
-                            <th><i class="bi bi-people"></i> Capacidad</th>
-                            <th><i class="bi bi-star"></i> Adaptación para discapacitados</th>
-                            <th><i class="bi bi-gear"></i> Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($casas_pagina as $casa): 
-                            $es_vip = $casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados'];
-                        ?>
-                            <tr>
-                                <td>
-                                    <?php if (!empty($casa['imagen_principal'])): ?>
-                                        <img src="./imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" 
-                                             alt="<?= htmlspecialchars($casa['nombre']) ?>" 
-                                             style="width: 50px; height: 50px; object-fit: cover;">
-                                    <?php else: ?>
-                                        <span class="badge badge-secondary">Sin imagen</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><strong><?= htmlspecialchars($casa['nombre']) ?></strong></td>
-                                <td><?= htmlspecialchars($casa['ciudad'] ?? 'N/A') ?></td>
-                                <td><strong>€<?= number_format($casa['precio_noche'], 2) ?></strong></td>
-                                <td><?= $casa['capacidad'] ?> pers.</td>
-                                <td>
-                                    <?php if ($es_vip): ?>
-                                        <span class="badge badge-vip"><i class="bi bi-crown-fill"></i> VIP Premium</span>
-                                    <?php endif; ?>
-                                    <?php if ($casa['tiene_adaptacion_discapacitados']): ?>
-                                        <span class="badge badge-accesible"><i class="bi bi-wheelchair"></i> Accesible</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-info btn-action" 
-                                            onclick="verDetalles(<?= htmlspecialchars(json_encode($casa)) ?>)">
-                                        ℹ️ Info
-                                    </button>
-                                    <button type="button" class="btn btn-warning btn-action" 
-                                            onclick="abrirModalEditar(<?= $casa['id_casa'] ?>)"value="accion=editar&id=<?=$casa['id_casa']?>">
-                                        ✏️ Editar
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-action" 
-                                            onclick="confirmarEliminar(<?= $casa['id_casa'] ?>, '<?= htmlspecialchars($casa['nombre']) ?>')">
-                                        🗑️ Eliminar
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- PAGINACIÓN -->
-            <?php if ($total_paginas > 1): ?>
-                <nav aria-label="Paginación">
-                    <ul class="pagination">
-                        <?php 
-                        $query_params = http_build_query([
-                            'provincia' => $filtro_provincia,
-                            'ciudad' => $filtro_ciudad,
-                            'capacidad' => $filtro_capacidad,
-                            'precio' => $filtro_precio != 999999 ? $filtro_precio : ''
-                        ]);
-                        ?>
-                        <?php if ($pagina > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?<?= $query_params ?>&pagina=1">
-                                    <i class="bi bi-chevron-double-left"></i> Primera
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?<?= $query_params ?>&pagina=<?= $pagina - 1 ?>">
-                                    <i class="bi bi-chevron-left"></i> Anterior
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php 
-                        $inicio_pag = max(1, $pagina - 2);
-                        $fin_pag = min($total_paginas, $pagina + 2);
-
-                        for ($i = $inicio_pag; $i <= $fin_pag; $i++):
-                        ?>
-                            <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
-                                <a class="page-link" href="?<?= $query_params ?>&pagina=<?= $i ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-
-                        <?php if ($pagina < $total_paginas): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?<?= $query_params ?>&pagina=<?= $pagina + 1 ?>">
-                                    Siguiente <i class="bi bi-chevron-right"></i>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?<?= $query_params ?>&pagina=<?= $total_paginas ?>">
-                                    Última <i class="bi bi-chevron-double-right"></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-        <?php else: ?>
-            <div class="alert alert-info">
-                <i class="bi bi-inbox"></i> No hay casas registradas. 
-                <button type="button" class="btn btn-primary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#modalCasa" onclick="abrirModalCrear()">
-                    Crear la primera casa
-                </button>
-            </div>
-        <?php endif; ?>
-    </div>
-
-    <!-- MODAL CREAR/EDITAR CASA -->
-    <div class="modal fade" id="modalCasa" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <span id="modalTitulo">Crear Nueva Casa</span>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <?php if ($accion === 'crear' || $accion === 'editar'): ?>
+            <!-- FORMULARIO (visible solo cuando accion=crear o editar) -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header" style="background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
+                    <h4 class="mb-0">
+                        <i class="bi bi-<?= $accion === 'crear' ? 'plus-circle' : 'pencil-square' ?>"></i>
+                        <?= $accion === 'crear' ? 'Crear Nueva Casa' : 'Editar Casa' ?>
+                    </h4>
                 </div>
-                <form id="formCasa" method="POST">
-                    <div class="modal-body">
-                        <div id="erroresModal"></div>
+                <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
+                    <?php if (!empty($errores)): ?>
+                        <div class="alert alert-danger">
+                            <strong>⚠️ Errores encontrados:</strong>
+                            <ul class="mb-0">
+                                <?php foreach ($errores as $error): ?>
+                                    <li><?= htmlspecialchars($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
-                        <h6><i class="bi bi-info-circle"></i> Información Básica</h6>
+                    <form method="POST" enctype="multipart/form-data">
+                        
+                        <!-- INFORMACIÓN BÁSICA -->
+                        <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN BÁSICA</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="nombre" class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="id_propietario" class="form-label">Propietario *</label>
-                                <select class="form-select" id="id_propietario" name="id_propietario" required>
-                                    <option value="">-- Seleccionar --</option>
+                                <label class="form-label">Propietario *</label>
+                                <select name="id_propietario" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
                                     <?php foreach ($propietarios as $prop): ?>
-                                        <option value="<?= $prop['id_usuario'] ?>">
+                                        <option value="<?= $prop['id_usuario'] ?>" <?= $datos_casa['id_propietario'] == $prop['id_usuario'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($prop['username']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="capacidad" class="form-label">Capacidad *</label>
-                                <input type="number" class="form-control" id="capacidad" name="capacidad" min="1" value="1" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="precio_noche" class="form-label">Precio/Noche (€) *</label>
-                                <input type="number" class="form-control" id="precio_noche" name="precio_noche" min="0" step="0.01" value="<?= $accion === 'editar' ? $datos_casa['precio_noche'] :  ?>" required>
+                                <label class="form-label">Nombre de la Casa *</label>
+                                <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($datos_casa['nombre']) ?>" required>
                             </div>
                         </div>
 
-                        <h6><i class="bi bi-geo-alt"></i> Ubicación</h6>
+                        <!-- UBICACIÓN -->
+                        <h6><i class="bi bi-geo-alt-fill"></i> UBICACIÓN</h6>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="id_comunidad" class="form-label">Comunidad *</label>
-                                <select class="form-select" id="id_comunidad" name="id_comunidad" required>
-                                    <option value="">-- Seleccionar --</option>
+                            <div class="col-md-4">
+                                <label class="form-label">Comunidad Autónoma *</label>
+                                <select name="id_comunidad" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
                                     <?php foreach ($comunidades as $com): ?>
-                                        <option value="<?= $com['id_comunidad'] ?>">
+                                        <option value="<?= $com['id_comunidad'] ?>" <?= $datos_casa['id_comunidad'] == $com['id_comunidad'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($com['nombre']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label for="id_provincia" class="form-label">Provincia *</label>
-                                <select class="form-select" id="id_provincia" name="id_provincia" required>
-                                    <option value="">-- Seleccionar --</option>
+                            <div class="col-md-4">
+                                <label class="form-label">Provincia *</label>
+                                <select name="id_provincia" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
                                     <?php foreach ($provincias as $prov): ?>
-                                        <option value="<?= $prov['id_provincia'] ?>">
+                                        <option value="<?= $prov['id_provincia'] ?>" <?= $datos_casa['id_provincia'] == $prov['id_provincia'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($prov['nombre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Ciudad *</label>
+                                <select name="id_ciudad" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
+                                    <?php foreach ($ciudades as $ciudad): ?>
+                                        <option value="<?= $ciudad['id_ciudad'] ?>" <?= $datos_casa['id_ciudad'] == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($ciudad['nombre']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="id_ciudad" class="form-label">Ciudad *</label>
-                            <select class="form-select" id="id_ciudad" name="id_ciudad" required>
-                                <option value="">-- Seleccionar --</option>
-                                <?php foreach ($ciudades as $ciu): ?>
-                                    <option value="<?= $ciu['id_ciudad'] ?>">
-                                        <?= htmlspecialchars($ciu['nombre']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <h6><i class="bi bi-door-closed"></i> Habitaciones</h6>
+                        <!-- CAPACIDAD Y PRECIO -->
+                        <h6><i class="bi bi-cash-stack"></i> CAPACIDAD Y PRECIO</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="num_banos" class="form-label">Baños *</label>
-                                <input type="number" class="form-control" id="num_banos" name="num_banos" min="1" value="1" required>
+                                <label class="form-label">Capacidad (personas) *</label>
+                                <input type="number" name="capacidad" class="form-control" min="1" value="<?= $datos_casa['capacidad'] ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="num_cocinas" class="form-label">Cocinas *</label>
-                                <input type="number" class="form-control" id="num_cocinas" name="num_cocinas" min="1" value="1" required>
+                                <label class="form-label">Precio por Noche (€) *</label>
+                                <input type="number" name="precio_noche" class="form-control" step="0.01" min="0" value="<?= $datos_casa['precio_noche'] ?>" required>
                             </div>
                         </div>
 
+                        <!-- HABITACIONES Y BAÑOS -->
+                        <h6><i class="bi bi-door-open-fill"></i> HABITACIONES Y BAÑOS</h6>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="num_hab_individuales" class="form-label">Hab. Individuales</label>
-                                <input type="number" class="form-control" id="num_hab_individuales" name="num_hab_individuales" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Baños *</label>
+                                <input type="number" name="num_banos" class="form-control" min="1" value="<?= $datos_casa['num_banos'] ?>" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_hab_familiares" class="form-label">Hab. Familiares</label>
-                                <input type="number" class="form-control" id="num_hab_familiares" name="num_hab_familiares" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Cocinas *</label>
+                                <input type="number" name="num_cocinas" class="form-control" min="1" value="<?= $datos_casa['num_cocinas'] ?>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Hab. Individuales</label>
+                                <input type="number" name="num_hab_individuales" class="form-control" min="0" value="<?= $datos_casa['num_hab_individuales'] ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Hab. Familiares</label>
+                                <input type="number" name="num_hab_familiares" class="form-control" min="0" value="<?= $datos_casa['num_hab_familiares'] ?>">
                             </div>
                         </div>
 
-                        <h6><i class="bi bi-cup-straw"></i> Electrodomésticos</h6>
+                        <!-- ELECTRODOMÉSTICOS -->
+                        <h6><i class="bi bi-plug-fill"></i> ELECTRODOMÉSTICOS</h6>
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="num_nevera" class="form-label">Neveras *</label>
-                                <input type="number" class="form-control" id="num_nevera" name="num_nevera" min="1" value="1" required>
+                            <div class="col-md-3">
+                                <label class="form-label">Lavadoras</label>
+                                <input type="number" name="num_lavadora" class="form-control" min="0" value="<?= $datos_casa['num_lavadora'] ?>">
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_congelador" class="form-label">Congeladores</label>
-                                <input type="number" class="form-control" id="num_congelador" name="num_congelador" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Secadoras</label>
+                                <input type="number" name="num_secadora" class="form-control" min="0" value="<?= $datos_casa['num_secadora'] ?>">
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="num_lavadora" class="form-label">Lavadoras</label>
-                                <input type="number" class="form-control" id="num_lavadora" name="num_lavadora" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Lavavajillas</label>
+                                <input type="number" name="num_lavavajillas" class="form-control" min="0" value="<?= $datos_casa['num_lavavajillas'] ?>">
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_secadora" class="form-label">Secadoras</label>
-                                <input type="number" class="form-control" id="num_secadora" name="num_secadora" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Hornos</label>
+                                <input type="number" name="num_horno" class="form-control" min="0" value="<?= $datos_casa['num_horno'] ?>">
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="num_lavavajillas" class="form-label">Lavavajillas</label>
-                                <input type="number" class="form-control" id="num_lavavajillas" name="num_lavavajillas" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Microondas</label>
+                                <input type="number" name="num_microondas" class="form-control" min="0" value="<?= $datos_casa['num_microondas'] ?>">
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_horno" class="form-label">Hornos</label>
-                                <input type="number" class="form-control" id="num_horno" name="num_horno" min="0" value="0">
+                            <div class="col-md-3">
+                                <label class="form-label">Neveras *</label>
+                                <input type="number" name="num_nevera" class="form-control" min="1" value="<?= $datos_casa['num_nevera'] ?>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Congeladores</label>
+                                <input type="number" name="num_congelador" class="form-control" min="0" value="<?= $datos_casa['num_congelador'] ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Aparcamientos</label>
+                                <input type="number" name="num_aparcamientos" class="form-control" min="0" value="<?= $datos_casa['num_aparcamientos'] ?>">
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="num_microondas" class="form-label">Microondas</label>
-                            <input type="number" class="form-control" id="num_microondas" name="num_microondas" min="0" value="0">
-                        </div>
-
-                        <h6><i class="bi bi-gear"></i> Servicios</h6>
+                        <!-- AMENIDADES -->
+                        <h6><i class="bi bi-stars"></i> AMENIDADES Y CARACTERÍSTICAS</h6>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_wifi" name="tiene_wifi">
-                                    <label class="form-check-label" for="tiene_wifi">WiFi</label>
+                                    <input type="checkbox" name="tiene_wifi" class="form-check-input" id="wifi" <?= $datos_casa['tiene_wifi'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="wifi">Wi-Fi</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_calefaccion" name="tiene_calefaccion">
-                                    <label class="form-check-label" for="tiene_calefaccion">Calefacción</label>
+                                    <input type="checkbox" name="tiene_calefaccion" class="form-check-input" id="calefaccion" <?= $datos_casa['tiene_calefaccion'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="calefaccion">Calefacción</label>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_aire_acondicionado" name="tiene_aire_acondicionado">
-                                    <label class="form-check-label" for="tiene_aire_acondicionado">Aire Acondicionado</label>
+                                    <input type="checkbox" name="tiene_aire_acondicionado" class="form-check-input" id="aire" <?= $datos_casa['tiene_aire_acondicionado'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="aire">Aire Acondicionado</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_ascensores" class="form-label">Ascensores</label>
-                                <input type="number" class="form-control" id="num_ascensores" name="num_ascensores" min="0" value="0">
-                            </div>
-                        </div>
-
-                        <h6><i class="bi bi-tree"></i> Espacios Exteriores</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_piscina" name="tiene_piscina">
-                                    <label class="form-check-label" for="tiene_piscina">Piscina</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_jardin" name="tiene_jardin">
-                                    <label class="form-check-label" for="tiene_jardin">Jardín</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_patio" name="tiene_patio">
-                                    <label class="form-check-label" for="tiene_patio">Patio</label>
+                                    <input type="checkbox" name="tiene_piscina" class="form-check-input" id="piscina" <?= $datos_casa['tiene_piscina'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="piscina">Piscina</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_barbacoa" name="tiene_barbacoa">
-                                    <label class="form-check-label" for="tiene_barbacoa">Barbacoa</label>
+                                    <input type="checkbox" name="tiene_banera" class="form-check-input" id="banera" <?= $datos_casa['tiene_banera'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="banera">Bañera</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="num_aparcamientos" class="form-label">Aparcamientos</label>
-                                <input type="number" class="form-control" id="num_aparcamientos" name="num_aparcamientos" min="0" value="0">
-                            </div>
-                        </div>
-
-                        <h6><i class="bi bi-heart"></i> Amenidades Extra</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_banera" name="tiene_banera">
-                                    <label class="form-check-label" for="tiene_banera">Bañera</label>
+                                    <input type="checkbox" name="tiene_barbacoa" class="form-check-input" id="barbacoa" <?= $datos_casa['tiene_barbacoa'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="barbacoa">Barbacoa</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_chimenea" name="tiene_chimenea">
-                                    <label class="form-check-label" for="tiene_chimenea">Chimenea</label>
+                                    <input type="checkbox" name="tiene_chimenea" class="form-check-input" id="chimenea" <?= $datos_casa['tiene_chimenea'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="chimenea">Chimenea</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="tiene_adaptacion_discapacitados" class="form-check-input" id="adaptacion" <?= $datos_casa['tiene_adaptacion_discapacitados'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="adaptacion">Adaptación Discapacitados</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_sala_cine" name="tiene_sala_cine">
-                                    <label class="form-check-label" for="tiene_sala_cine">Sala de Cine</label>
+                                    <input type="checkbox" name="tiene_jardin" class="form-check-input" id="jardin" <?= $datos_casa['tiene_jardin'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="jardin">Jardín</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tiene_secador_pelo" name="tiene_secador_pelo">
-                                    <label class="form-check-label" for="tiene_secador_pelo">Secador Pelo</label>
+                                    <input type="checkbox" name="tiene_patio" class="form-check-input" id="patio" <?= $datos_casa['tiene_patio'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="patio">Patio</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="tiene_sala_cine" class="form-check-input" id="cine" <?= $datos_casa['tiene_sala_cine'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="cine">Sala de Cine</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="tiene_secador_pelo" class="form-check-input" id="secador" <?= $datos_casa['tiene_secador_pelo'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="secador">Secador de Pelo</label>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="tiene_adaptacion_discapacitados" name="tiene_adaptacion_discapacitados">
-                                <label class="form-check-label" for="tiene_adaptacion_discapacitados">
-                                    <strong><i class="bi bi-wheelchair"></i> Adaptación para Discapacitados</strong>
-                                </label>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Ascensores</label>
+                                <input type="number" name="num_ascensores" class="form-control" min="0" value="<?= $datos_casa['num_ascensores'] ?>">
                             </div>
                         </div>
 
-                        <h6><i class="bi bi-image"></i> Imagen</h6>
-                        <div class="mb-3">
-                            <label for="imagen_principal" class="form-label">Imagen Principal</label>
-                            <?php if (!empty($datos_casa['imagen_principal'])): ?>
-                                <div class="mb-2">
-                                    <img src="<?= htmlspecialchars($datos_casa['imagen_principal']) ?>" alt="Imagen actual" style="max-width: 150px; height: auto; border-radius: 6px;">
-                                </div>
-                            <?php endif; ?>
-                            <input type="file" class="form-control" id="imagen_principal" name="imagen_principal" accept="image/*">
-                            <small class="text-muted">Sube una imagen para la casa. La imagen se guardará en /admin/imagenes</small>
+                        <!-- IMAGEN -->
+                        <h6><i class="bi bi-image-fill"></i> IMAGEN PRINCIPAL</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Imagen Principal</label>
+                                <input type="file" name="imagen_principal" class="form-control" accept="image/                          *">
+                                <?php if (!empty($datos_casa['imagen_principal'])): ?>
+                                    <small class="text-muted">Imagen actual: <?= htmlspecialchars($datos_casa['imagen_principal']) ?></small>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="casas2.php" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear Casa' : 'Actualizar Casa' ?>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        <?php else: ?>
+            <!-- TABLA Y FILTROS (visible solo cuando NO hay accion) -->
+            
+            <!-- Filtros -->
+            <div class="filters-card">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Provincia</label>
+                        <select name="provincia" class="form-select">
+                            <option value="">Todas</option>
+                            <?php foreach ($provincias as $prov): ?>
+                                <option value="<?= $prov['id_provincia'] ?>" <?= $filtro_provincia == $prov['id_provincia'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($prov['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btnSubmit">
-                            <i class="bi bi-save"></i> Guardar
+                    <div class="col-md-3">
+                        <label class="form-label">Ciudad</label>
+                        <select name="ciudad" class="form-select">
+                            <option value="">Todas</option>
+                            <?php foreach ($ciudades as $ciudad): ?>
+                                <option value="<?= $ciudad['id_ciudad'] ?>" <?= $filtro_ciudad == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($ciudad['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Capacidad Mín.</label>
+                        <input type="number" name="capacidad" class="form-control" min="0" value="<?= $filtro_capacidad ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Precio Máx. (€)</label>
+                        <input type="number" name="precio" class="form-control" min="0" value="<?= $filtro_precio != 999999 ? $filtro_precio : '' ?>">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel-fill"></i> Filtrar
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
 
-    <!-- MODAL ELIMINAR -->
-    <div class="modal fade" id="modalEliminar" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Está seguro de que desea eliminar la casa?</p>
-                    <p class="fw-bold" id="casaNombreEliminar"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">
-                        <i class="bi bi-trash"></i> Sí, Eliminar
-                    </button>
-                </div>
+            <!-- Botón Añadir -->
+            <div class="mb-3">
+                <a href="?accion=crear" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Casa
+                </a>
             </div>
-        </div>
-    </div>
 
-    <!-- MODAL MAS INFORMACION -->
-    <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="modalDetallesLabel">Detalles de la Casa</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body" style="white-space: pre-wrap;" id="contenidoDetalles"></div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        </div>
-        </div>
-    </div>
+            <!-- Tabla -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Ubicación</th>
+                            <th>Precio/Noche</th>
+                            <th>Capacidad</th>
+                            <th>Adaptación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($casas_pagina)): ?>
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                                    <p class="mt-2">No se encontraron casas con los filtros aplicados.</p>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($casas_pagina as $casa): ?>
+                                <tr>
+                                    <td>
+                                        <?php if (!empty($casa['imagen_principal'])): ?>
+                                            <img src="<?= htmlspecialchars($casa['imagen_principal']) ?>" alt="Casa" width="50" height="50" style="object-fit: cover;">
+                                        <?php else: ?>
+                                            <span class="text-muted">Sin imagen</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?= htmlspecialchars($casa['nombre']) ?></td>
+                                    <td><?= htmlspecialchars($casa['ciudad'] ?? 'N/A') ?></td>
+                                    <td><strong>€<?= number_format($casa['precio_noche'], 2) ?></strong></td>
+                                    <td><?= $casa['capacidad'] ?> pers.</td>
+                                    <td>
+                                        <?php if ($casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados']): ?>
+                                            <span class="badge badge-vip">⭐ VIP Premium Accesible</span>
+                                        <?php elseif ($casa['tiene_adaptacion_discapacitados']): ?>
+                                            <span class="badge badge-accesible">♿ Accesible</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-secondary">Estándar</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="?accion=editar&id=<?= $casa['id_casa'] ?>" class="btn btn-warning btn-action">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </a>
+                                        <a href="?accion=eliminar&id=<?= $casa['id_casa'] ?>" 
+                                           class="btn btn-danger btn-action"
+                                           onclick="return confirm('¿Estás seguro de que deseas eliminar esta casa? Esta acción no se puede deshacer.');">
+                                            <i class="bi bi-trash-fill"></i> Eliminar
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <?php if ($total_paginas > 1): ?>
+                <nav>
+                    <ul class="pagination">
+                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                            <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
+                                <a class="page-link" href="?pagina=<?= $i ?>&provincia=<?= $filtro_provincia ?>&ciudad=<?= $filtro_ciudad ?>&capacidad=<?= $filtro_capacidad ?>&precio=<?= $filtro_precio ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+
+        <?php endif; ?>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const modalCasa = new bootstrap.Modal(document.getElementById('modalCasa'));
-        const modalEliminar = new bootstrap.Modal(document.getElementById('modalEliminar'));
-        let idCasaActual = null;
-
-        function abrirModalCrear() {
-            document.getElementById('modalTitulo').textContent = 'Crear Nueva Casa';
-            document.getElementById('btnSubmit').innerHTML = '<i class="bi bi-save"></i> Guardar';
-            document.getElementById('formCasa').reset();
-            document.getElementById('formCasa').action = '';
-            document.getElementById('formCasa').setAttribute('data-accion', 'crear');
-            document.getElementById('erroresModal').innerHTML = '';
-            idCasaActual = null;
-        }
-
-        function abrirModalEditar(id) {
-            document.getElementById('modalTitulo').textContent = 'Editar Casa';
-            document.getElementById('btnSubmit').innerHTML = '<i class="bi bi-save"></i> Guardar';
-            document.getElementById('formCasa').setAttribute('data-accion', 'editar');
-            idCasaActual = id;
-            modalCasa.show();
-        }
-
-        /* function verDetalles(casa) {
-            let detalles = `
-                🏠 DETALLES COMPLETOS
-                ════════════════════════════════════════
-                📋 BÁSICA: ${casa.nombre} | €${casa.precio_noche}/noche | ${casa.capacidad} pers.
-                📍 UBICACIÓN: ${casa.ciudad}, ${casa.provincia}
-                👤 PROPIETARIO: ${casa.propietario}
-                🏠 HABITACIONES: ${casa.num_banos} baños | ${casa.num_cocinas} cocinas
-                🍳 ELECTRODOMÉSTICOS: ${casa.num_lavadora} lavadora(s) | ${casa.num_lavavajillas} lavavajillas
-                ⚙️ SERVICIOS: WiFi: ${casa.tiene_wifi ? '✅' : '❌'} | Calefacción: ${casa.tiene_calefaccion ? '✅' : '❌'}
-                🏞️ EXTERIORES: Piscina: ${casa.tiene_piscina ? '✅' : '❌'} | Jardín: ${casa.tiene_jardin ? '✅' : '❌'}
-                🎭 EXTRAS: Chimenea: ${casa.tiene_chimenea ? '✅' : '❌'} | Adaptación para Discapacitados: ${casa.tiene_adaptacion_discapacitados ? '✅' : '❌'}`;
-            alert(detalles);
-        } */
-        function verDetalles(casa) {
-            let detalles = `
-            📋 BÁSICA: ${casa.nombre} | €${casa.precio_noche}/noche | ${casa.capacidad} pers.
-            📍 UBICACIÓN: ${casa.ciudad}, ${casa.provincia}
-            👤 PROPIETARIO: ${casa.propietario}
-            🏠 HABITACIONES: ${casa.num_banos} baños | ${casa.num_cocinas} cocinas
-            🍳 ELECTRODOMÉSTICOS: ${casa.num_lavadora} lavadora(s) | ${casa.num_lavavajillas} lavavajillas
-            ⚙️ SERVICIOS: WiFi: ${casa.tiene_wifi ? '✅' : '❌'} | Calefacción: ${casa.tiene_calefaccion ? '✅' : '❌'}
-            🏞️ EXTERIORES: Piscina: ${casa.tiene_piscina ? '✅' : '❌'} | Jardín: ${casa.tiene_jardin ? '✅' : '❌'}
-            🎭 EXTRAS: Chimenea: ${casa.tiene_chimenea ? '✅' : '❌'} | Adaptación para Discapacitados: ${casa.tiene_adaptacion_discapacitados ? '✅' : '❌'}`;
-
-            const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
-            document.getElementById('contenidoDetalles').textContent = detalles;
-            modal.show();
-        }
-
-
-        function confirmarEliminar(id, nombre) {
-            idCasaActual = id;
-            document.getElementById('casaNombreEliminar').textContent = nombre;
-            document.getElementById('btnConfirmarEliminar').onclick = function() {
-                window.location.href = `casasamedia.php?accion=eliminar_confirmar&id=${id}`;
-            };
-            modalEliminar.show();
-        }
-
-        document.getElementById('formCasa').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const accion = this.getAttribute('data-accion');
-            const formData = new FormData(this);
-
-            fetch('casasamedia.php?accion=' + accion + (idCasaActual ? '&id=' + idCasaActual : ''), {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                location.reload();
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
 </body>
 </html>

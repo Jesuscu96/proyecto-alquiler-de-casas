@@ -30,6 +30,57 @@ class Usuarios {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
     }
+    
+    public function getCantidadUsuarios() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_usuario) AS cantidad_usuarios FROM usuarios";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        return $result ? $result->fetch_assoc()['cantidad_usuarios'] : 0;
+    }
+    public function getCantidadUsuariosCliente() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_usuario) AS cantidad_usuarios FROM usuarios WHERE rol = 'cliente'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+
+        return $result ? $result->fetch_assoc()['cantidad_usuarios'] : 0;
+    }
+    public function getCantidadUsuariosAdmin() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_usuario) AS cantidad_usuarios FROM usuarios WHERE rol = 'admin'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+
+        return $result ? $result->fetch_assoc()['cantidad_usuarios'] : 0;
+    }
+    public function getCantidadUsuariosSuperAdmin() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_usuario) AS cantidad_usuarios FROM usuarios WHERE rol = 'superAdmin'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        
+        return $result ? $result->fetch_assoc()['cantidad_usuarios'] : 0;
+    }
+
+
+
+
     public function insertarUsuario($username, $nombre, $apellidos, $edad, $email, $password, $rol, $telefono) {
         $db = new Connection();
         $conn = $db->getConnection();

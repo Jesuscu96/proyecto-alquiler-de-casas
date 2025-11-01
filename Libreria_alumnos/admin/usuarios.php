@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <td><?=$usuario['apellidos']?></td>
                             <td><?=$usuario['email']?></td>
                             <td><?=$usuario['username']?></td>
-                            <!-- <td><?=$usuario['password']?></td -->
+                            
                             
                             <td>
                                 <a href="usuarios.php?accion=editar&id=<?=$usuario['id']?>" class="btn btn-sm btn-primary">

@@ -5,6 +5,7 @@
 :root {
     --primary: #0b5482;
     --secondary: #4fd1c5;
+    --tertiary: #501563;
     --accent: #ffd166;
     --dark: #072d4b;
     --light: #e9f7f6;
@@ -93,6 +94,25 @@ body {
 
 .stat-card.precio {
     border-left-color: var(--secondary);
+}
+.stat-card.cantidad {
+    border-left-color: var(--tertiary);
+}
+
+.icon-primary {
+  color: var(--primary);
+}
+
+.icon-secondary {
+  color: var(--secondary);
+}
+
+.icon-tertiary {
+  color: var(--tertiary);
+}
+
+.icon-accent {
+  color: var(--accent);
 }
 
 .stat-card h3 {

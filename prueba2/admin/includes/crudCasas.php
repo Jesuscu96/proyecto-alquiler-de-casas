@@ -136,7 +136,7 @@ class Casas {
 
         $stmt = $conn->prepare($sql);
 
-        $stmt->bind_param("iiiisidiiiiiiiiiiiiiiiiiiiiiiiiiiis",
+        $stmt->bind_param("iiiisidiiiiiiiiiiiiiiiiiiiiiiiiis",
             $id_propietario, $id_comunidad, $id_provincia, $id_ciudad, $nombre, $capacidad, $precio_noche,
             $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
             $num_aparcamientos, $num_lavadora, $num_secadora, $num_lavavajillas,
@@ -201,7 +201,7 @@ class Casas {
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(
-            "iiiisidiiiiiiiiiiiiiiiiiiiiiiisii",
+            "iiiisidiiiiiiiiiiiiiiiiiiiiiiiiisi",
             $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
             $nombre, $capacidad, $precio_noche,
             $num_banos, $num_cocinas, $num_hab_individuales, $num_hab_familiares,
