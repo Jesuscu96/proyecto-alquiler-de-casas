@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <td><?=$usuario['apellidos']?></td>
                             <td><?=$usuario['email']?></td>
                             <td><?=$usuario['username']?></td>
-                            
+                            <!-- <td><?=$usuario['password']?></td -->
                             
                             <td>
                                 <a href="usuarios.php?accion=editar&id=<?=$usuario['id']?>" class="btn btn-sm btn-primary">
@@ -128,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <?php endforeach ?>
                     </tbody>
                 </table>
-                <?php if ($accion === "crear" || ($accion === "editar" && $id)): ?>
+                <?php if ($accion === "editar" && $id): ?>
                     
                         <!-- TÃ­tulo dependiendo de si se estÃ¡ creando o editando -->
                         <h3><?= $accion === "crear" ? "Nuevo usuario" : "Editar usuario" ?></h3>
@@ -160,7 +160,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <button type="submit" class="btn btn-primary">Guardar</button>
                             <a href="usuarios.php" class="btn btn-secondary">Cancelar</a>
                         </form>
-                           
+                <?php elseif (($accion === "crear")): ?>
+                         <!-- TÃ­tulo dependiendo de si se estÃ¡ creando o editando -->
+                        <h3><?= $accion === "crear" ? "Nuevo usuario" : "Editar usuario" ?></h3>
+                        
+                        <!-- Formulario para ingresar el nombre de la categorÃ­a -->
+                        <form method="post" class="mb-4" style="max-width: 400px;">
+                            <div class="mb-2">
+                                <label class="form-label">Nombre:</label>
+                                <input type="text" name="nombre" class="form-control"
+                                value="<?= htmlspecialchars($datos_usuario['nombre']) ?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Apellidos:</label>
+                                <input type="text" name="apellidos" class="form-control"
+                                value="<?=htmlspecialchars($datos_usuario['apellidos'])?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Email:</label>
+                                <input type="text" name="email" class="form-control"
+                                value="<?= htmlspecialchars($datos_usuario['email']) ?>" required>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label class="form-label">Username:</label>
+                                <input type="text" name="username" class="form-control"
+                                value="<?=htmlspecialchars($datos_usuario['username'])?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Password:</label>
+                                <input type="password" name="password" class="form-control"
+                                value="" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Confirmar password:</label>
+                                <input type="password" name="passwordConfirm" class="form-control"
+                                value="" required>
+                            </div>
+                            <?php if (!empty($mensaje)) { ?>
+                                <div class="mb-2">
+                                    <p style="color:red; font-weight:bold;"><?= htmlspecialchars($mensaje) ?></p>
+                                </div>
+                            <?php } ?>
+
+                            <!-- Botones para guardar o cancelar -->
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <a href="usuarios.php" class="btn btn-secondary">Cancelar</a>
+                        </form>
                 <?php elseif (($accion === "editarPass" && $id)): ?>
                     
                         <!-- TÃ­tulo dependiendo de si se estÃ¡ creando o editando -->
@@ -169,14 +215,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <!-- Formulario para ingresar el nombre de la categorÃ­a -->
                         <form method="post" class="mb-4" style="max-width: 400px;">                            
                             
-                             <div class="mb-2">
+                            <div class="mb-2">
                                 <label class="form-label">Password:</label>
-                                <input type="text" name="password" class="form-control"
+                                <input type="password" name="password" class="form-control"
                                 value="" required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Confirmar password:</label>
-                                <input type="text" name="passwordConfirm" class="form-control"
+                                <input type="password" name="passwordConfirm" class="form-control"
                                 value="" required>
                             </div>
                             <?php if (!empty($mensaje)) { ?>

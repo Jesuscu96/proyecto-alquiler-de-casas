@@ -1,9 +1,9 @@
 <?php
 class Connection {
     private $host = "localhost";
-    private $user = "root";
-    private $pass = "bbdd";
-    private $dbname = "libreria";
+    private $user = "jesusclemente_root";
+    private $pass = "jesusDAM02";
+    private $dbname = "jesusclemente_libreria";
 
 public function getConnection() {
     $conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname);

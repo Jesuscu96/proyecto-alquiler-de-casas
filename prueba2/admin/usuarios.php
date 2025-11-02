@@ -9,7 +9,7 @@ if (!$sesion->comprobarSesion()) {
 $usuarioObj = new Usuarios();
 
 // Obtener datos
-$allUsuarios = $usuarioObj->getAll();
+$usuarios = $usuarioObj->getAll();
 $cantidadUsuarios = $usuarioObj->getCantidadUsuarios();
 $cantidadUsuariosCliente = $usuarioObj->getCantidadUsuariosCliente();
 $cantidadUsuariosAdmin = $usuarioObj->getCantidadUsuariosAdmin();
@@ -25,19 +25,19 @@ $id = $_GET['id'] ?? null;
 // Paginación
 /* $pagina = (int)($_GET['pagina'] ?? 1);
 $por_pagina = 8;
-$total_casas = count($casas);
-$total_paginas = ceil($total_casas / $por_pagina);
+$total_usuarios = count($usuarios);
+$total_paginas = ceil($total_usuarios / $por_pagina);
 $inicio = ($pagina - 1) * $por_pagina;
-$casas_pagina = array_slice($casas, $inicio, $por_pagina);
+$usuarios = array_slice($usuarios, $inicio, $por_pagina);
  */
 
 // Calcular estadísticas
-/* $casas_vip = array_filter($todasLasCasas, function($casa) {
-    return $casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados'];
+/* $usuarios_vip = array_filter($todasLasusuarios, function($usuario) {
+    return $usuario['precio_noche'] >= 1000 && $usuario['tiene_adaptacion_discapacitados'];
 }); */
-//$total_casas_todos = count($todasLasCasas);
-//$total_casas_vip = count($casas_vip);
-//$precio_promedio = !empty($todasLasCasas) ? array_sum(array_column($todasLasCasas, 'precio_noche')) / $total_casas_todos : 0;
+//$total_usuarios_todos = count($todasLasusuarios);
+//$total_usuarios_vip = count($usuarios_vip);
+//$precio_promedio = !empty($todasLasusuarios) ? array_sum(array_column($todasLasusuarios, 'precio_noche')) / $total_usuarios_todos : 0;
 
 // Datos por defecto del formulario
 $datos_usuario = [
@@ -72,9 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $edad = (int)($_POST['edad'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
+    $passwordConfirm = $_POST['passwordConfirm'] ?? '';
     $rol = trim($_POST['rol'] ?? '');
     $telefono = trim($_POST['telefono'] ?? '');
-    
+    $mensaje ="";
     
 
     // Validaciones
@@ -84,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($edad)) $errores['edad'] = "La edad no puede estar vacía.";
     if (empty($eamil)) $errores['email'] = "El email no puede estar vacío.";
     if (empty($password)) $errores['password'] = "La contraseña no puede estar vacía.";
+    if (empty($passwordConfirm)) $errores['password'] = "La contraseña no puede estar vacía.";
     if (empty($rol)) $errores['rol'] = "El rol no puede estar vacío.";
     if (empty($telefono)) $errores['telefono'] = "El telefono no puede estar vacío.";
     
@@ -101,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } 
             }elseif ($accion === "editar" && $id) {
                 // Actualización sin cambiar contraseña
-                $usuarioObj->actualizarUsuario($id, $nombre, $apellidos, $email, $username);
+                $usuarioObj->actualizarUsuario($id, $username, $nombre, $apellidos, $edad, $email, $rol, $telefono);
                 header("Location: usuarios.php");
                 exit();
             } elseif ($accion === "editarPass" && $id) {
@@ -162,13 +164,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
 
-        <?php if ($accion === 'crear' || $accion === 'editar'): ?>
+        <?php if ($accion === 'crear'): ?>
             <!-- FORMULARIO (visible solo cuando accion=crear o editar) -->
             <div class="card shadow-lg border-0">
                 <div class="card-header" style="background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
                     <h4 class="mb-0">
                         <i class="bi bi-<?= $accion === 'crear' ? 'plus-circle' : 'pencil-square' ?>"></i>
-                        <?= $accion === 'crear' ? 'Crear Nueva Casa' : 'Editar Casa' ?>
+                        <?= $accion === 'crear' ? 'Crear Nueva usuario' : 'Editar usuario' ?>
                     </h4>
                 </div>
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
@@ -207,20 +209,136 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Telefono *</label>
-                                <input type="text" name="telefono" class="form-control" value="<?= htmlspecialchars($datos_usuario['telefono']) ?>" required>
+                                <input type="tel" name="telefono" class="form-control" value="<?= htmlspecialchars($datos_usuario['telefono']) ?>" required>
                             </div>
                         </div>
                         <!-- PARTE2 -->
                         <h6><i class="bi bi-cash-stack"></i> CREDENCIALES</h6>
                         <div class="row mb-3">
-                             <div class="col-md-6">
+                            <div class="col-md-6">
+                                <!-- Cargo los datos del rol de cada uno y solo sale el rol de superAdmin
+                                 si el usuario es superAdmin para poder asignarlo y un usuario admin no puede cambiar el rol de un usuario superAdmin -->>
                                 <label class="form-label">Rol de usuario *</label>
-                                <input type="text" name="rol" class="form-control" value="<?= htmlspecialchars($datos_usuario['rol']) ?>" required>
+                                <select class="form-select" name="rol" required>
+                                <?php if($datos_usuario['rol'] !== "cliente" && $datos_usuario['rol'] !== "superAdmin" || $_SESSION['usuario']['rol'] === "superAdmin") { ?>
+                                    <option value="cliente">Cliente</option>
+                                <?php } ?>
+                                    
+                                <?php if($datos_usuario['rol'] !== "admin" && $datos_usuario['rol'] !== "superAdmin" || $_SESSION['usuario']['rol'] === "superAdmin") { ?>
+                                    <option value="admin">admin</option>
+                                <?php } ?>    
+                                    <option value="<?=htmlspecialchars($datos_usuario['rol']) ?>" selected><?= htmlspecialchars($datos_usuario['rol']) ?></option>
+                                <?php if($_SESSION['usuario']['rol'] === "superAdmin" && $datos_usuario['rol'] !== "superAdmin" ) { ?>
+                                    <option value="superAdmin">SuperAdmin</option>
+                                <?php } ?>
+                                </select>
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label">Dirección de correo electronico *</label>
-                                <input type="text" name="email" class="form-control" value="<?= htmlspecialchars($datos_usuario['email']) ?>" required>
+                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($datos_usuario['email']) ?>" required>
                             </div>
+                        
+                            
+                        </div>
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="usuarios.php" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear usuario' : 'Actualizar usuario' ?>
+                            </button>
+                        </div>
+        <?php if ($accion === 'editar'): ?>
+            <!-- FORMULARIO (visible solo cuando accion=crear o editar) -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header" style="background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
+                    <h4 class="mb-0">
+                        <i class="bi bi-<?= $accion === 'crear' ? 'plus-circle' : 'pencil-square' ?>"></i>
+                        <?= $accion === 'crear' ? 'Crear Nueva usuario' : 'Editar usuario' ?>
+                    </h4>
+                </div>
+                <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
+                    <?php if (!empty($errores)): ?>
+                        <div class="alert alert-danger">
+                            <strong>⚠️ Errores encontrados:</strong>
+                            <ul class="mb-0">
+                                <?php foreach ($errores as $error): ?>
+                                    <li><?= htmlspecialchars($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        
+                        <!-- PARTE1 -->
+                        <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN DEL USUARIO </h6>
+                        <div class="row mb-3">
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre de Usuario*</label>
+                                <input type="text" name="username" class="form-control" value="<?= htmlspecialchars($datos_usuario['username']) ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($datos_usuario['nombre']) ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Apellidos *</label>
+                                <input type="text" name="apellidos" class="form-control" value="<?= htmlspecialchars($datos_usuario['apellidos']) ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Edad *</label>
+                                <input type="number" name="edad" class="form-control" min="1" value="<?= $datos_usuario['edad'] ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Telefono *</label>
+                                <input type="tel" name="telefono" class="form-control" value="<?= htmlspecialchars($datos_usuario['telefono']) ?>" required>
+                            </div>
+                        </div>
+                        <!-- PARTE2 -->
+                        <h6><i class="bi bi-cash-stack"></i> CREDENCIALES</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <!-- Cargo los datos del rol de cada uno y solo sale el rol de superAdmin
+                                 si el usuario es superAdmin para poder asignarlo y un usuario admin no puede cambiar el rol de un usuario superAdmin -->>
+                                <label class="form-label">Rol de usuario *</label>
+                                <select class="form-select" name="rol" required>
+                                <?php if($datos_usuario['rol'] !== "cliente" && $datos_usuario['rol'] !== "superAdmin" || $_SESSION['usuario']['rol'] === "superAdmin") { ?>
+                                    <option value="cliente">Cliente</option>
+                                <?php } ?>
+                                    
+                                <?php if($datos_usuario['rol'] !== "admin" && $datos_usuario['rol'] !== "superAdmin" || $_SESSION['usuario']['rol'] === "superAdmin") { ?>
+                                    <option value="admin">admin</option>
+                                <?php } ?>    
+                                    <option value="<?=htmlspecialchars($datos_usuario['rol']) ?>" selected><?= htmlspecialchars($datos_usuario['rol']) ?></option>
+                                <?php if($_SESSION['usuario']['rol'] === "superAdmin" && $datos_usuario['rol'] !== "superAdmin" ) { ?>
+                                    <option value="superAdmin">SuperAdmin</option>
+                                <?php } ?>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Dirección de correo electronico *</label>
+                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($datos_usuario['email']) ?>" required>
+                            </div>
+                        
+                            
+                        </div>
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="usuarios.php" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear usuario' : 'Actualizar usuario' ?>
+                            </button>
+                        </div>                
+        <?php elseif (($accion === "editarPass" && $id)): ?>                
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Contraseña *</label>
                                 <input type="password" name="password" class="form-control" value="" required>
@@ -230,17 +348,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <input type="password" name="passwordConfirm" class="form-control" value="" required>
                             </div>
                         </div>
-                        
 
-                        
-
+                        <?php if (!empty($mensaje)) { ?>
+                            <div class="mb-2">
+                                <p style="color:red; font-weight:bold;"><?= htmlspecialchars($mensaje) ?></p>
+                            </div>
+                        <?php } ?>
                         <!-- BOTONES -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="usuarios.php" class="btn btn-secondary">
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear Casa' : 'Actualizar Casa' ?>
+                                <i class="bi bi-save-fill"></i> <?= $accion === 'editarPass' ? 'Actualizar contraseña' : 'Crear contraseña' ?>
                             </button>
                         </div>
                     </form>
@@ -256,7 +376,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <!-- Botón Añadir -->
             <div class="mb-3">
                 <a href="?accion=crear" class="btn btn-primary btn-lg">
-                    <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Casa
+                    <i class="bi bi-plus-circle-fill"></i> Añadir Nueva usuario
                 </a>
             </div>
 
@@ -265,57 +385,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Imagen</th>
+                            <th>Username</th>
                             <th>Nombre</th>
-                            <th>Ubicación</th>
-                            <th>Precio/Noche</th>
-                            <th>Capacidad</th>
-                            <th>Adaptación</th>
-                            <th>Acciones</th>
+                            <th>Apellidos</th>
+                            <th>Edad</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>telefono</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($casas_pagina)): ?>
+                        <?php if (empty($usuarios)): ?>
                             <tr>
                                 <td colspan="7" class="text-center py-4">
                                     <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                    <p class="mt-2">No se encontraron casas con los filtros aplicados.</p>
+                                    <p class="mt-2">No se encontraron usuarios con los filtros aplicados.</p>
                                 </td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($casas_pagina as $casa): ?>
+                            <?php foreach ($usuarios as $usuario): ?>
                                 <tr>
+                                    <td><?= htmlspecialchars($usuario['username']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['nombre']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['apellidos']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['edad']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['email']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['rol']) ?></td>
+                                    <td><?= htmlspecialchars($usuario['telefono']) ?></td>                
                                     <td>
-                                        <?php if (!empty($casa['imagen_principal'])): ?>
-                                            <img src="<?= htmlspecialchars($casa['imagen_principal']) ?>" alt="Casa" width="50" height="50" style="object-fit: cover;">
-                                        <?php else: ?>
-                                            <span class="text-muted">Sin imagen</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($casa['nombre']) ?></td>
-                                    <td><?= htmlspecialchars($casa['ciudad'] ?? 'N/A') ?></td>
-                                    <td><strong>€<?= number_format($casa['precio_noche'], 2) ?></strong></td>
-                                    <td><?= $casa['capacidad'] ?> pers.</td>
-                                    <td>
-                                        <?php if ($casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados']): ?>
-                                            <span class="badge badge-vip">⭐ VIP Premium Accesible</span>
-                                        <?php elseif ($casa['tiene_adaptacion_discapacitados']): ?>
-                                            <span class="badge badge-accesible">♿ Accesible</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-secondary">Estándar</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="?accion=editar&id=<?= $casa['id_casa'] ?>" class="btn btn-warning btn-action">
+                                        <a href="?accion=editar&id=<?= $usuario['id_usuario'] ?>" class="btn btn-warning btn-action">
                                             <i class="bi bi-pencil-square"></i> Editar
                                         </a>
-                                    <?php if($_SESSION['usuario']['id'] !== (int)$usuario['id'] && $_SESSION['usuario']['rol'] === "cliente" || $_SESSION['usuario']['id'] !== (int)$usuario['id'] && $_SESSION['usuario']['rol'] === "superAdmin") { ?>
-                                        <a href="?accion=eliminar&id=<?= $casa['id_casa'] ?>" 
-                                           class="btn btn-danger btn-action"
-                                           onclick="return confirm('¿Estás seguro de que deseas eliminar esta casa? Esta acción no se puede deshacer.');">
-                                            <i class="bi bi-trash-fill"></i> Eliminar
-                                        </a>
-                                    <?php } ?>
+                                        <?php if (( ($_SESSION['usuario']['rol'] === "admin" && $usuario['rol'] !== "superAdmin"  || 
+                                        $_SESSION['usuario']['rol'] === "superAdmin")) || ( $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
+                                            <a href="usuarios.php?accion=editarPass&id=<?=$usuario['id_usuario']?>" class="btn btn-outline-warning btn-action">
+                                            Editar contraseña
+                                            </a>
+                                        <?php } ?>
+                                        
+                                        <?php if (($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && ($_SESSION['usuario']['rol'] === "admin" || 
+                                        $_SESSION['usuario']['rol'] === "superAdmin")) || ($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
+                                            <a href="?accion=eliminar&id=<?= $usuario['id_usuario'] ?>" 
+                                            class="btn btn-danger btn-action"
+                                            onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.');">
+                                                <i class="bi bi-trash-fill"></i> Eliminar
+                                            </a>
+                                        <?php } ?>
+
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

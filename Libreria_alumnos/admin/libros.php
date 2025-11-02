@@ -175,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Fecha:</label>
-                                <input type="text" name="fecha" class="form-control"
+                                <input type="date" name="fecha" class="form-control"
                                 value="<?= $accion === 'crear' ? $datos_libro['fecha'] :  $fecha_value_editar ?>" required>
                             </div>
                             <div class="mb-2">

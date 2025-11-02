@@ -11,7 +11,7 @@ $categorias = $categoriasObj->showCategorias();
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="index.php">
-            <img src="logo.png" alt="Logo" height="40">
+            <img src="./portadas/nuevas_portadas/pngegg.png" alt="Logo" height="40">
         </a>
         <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link" href="index.php">Inicio</a></li>
