@@ -211,9 +211,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <label class="form-label">Telefono *</label>
                                 <input type="tel" name="telefono" class="form-control" value="<?= htmlspecialchars($datos_usuario['telefono']) ?>" required>
                             </div>
+                            
                         </div>
                         <!-- PARTE2 -->
-                        <h6><i class="bi bi-cash-stack"></i> CREDENCIALES</h6>
+                        <h6><i class="bi bi-card-text"></i> CREDENCIALES</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <!-- Cargo los datos del rol de cada uno y solo sale el rol de superAdmin
@@ -238,7 +239,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <label class="form-label">Dirección de correo electronico *</label>
                                 <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($datos_usuario['email']) ?>" required>
                             </div>
-                        
+                            <div class="col-md-6">
+                                <label class="form-label">Contraseña *</label>
+                                <input type="password" name="password" class="form-control" value="" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contraseña confirmación *</label>
+                                <input type="password" name="passwordConfirm" class="form-control" value="" required>
+                            </div>
                             
                         </div>
                         <!-- BOTONES -->
@@ -250,7 +258,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear usuario' : 'Actualizar usuario' ?>
                             </button>
                         </div>
-        <?php if ($accion === 'editar'): ?>
+        <?php elseif ($accion === 'editar'): ?>
             <!-- FORMULARIO (visible solo cuando accion=crear o editar) -->
             <div class="card shadow-lg border-0">
                 <div class="card-header" style="background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
@@ -297,9 +305,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <label class="form-label">Telefono *</label>
                                 <input type="tel" name="telefono" class="form-control" value="<?= htmlspecialchars($datos_usuario['telefono']) ?>" required>
                             </div>
+                            <?php if (!empty($mensaje)) { ?>
+                            <div class="mb-2">
+                                <p style="color:red; font-weight:bold;"><?= htmlspecialchars($mensaje) ?></p>
+                            </div>
+                            <?php } ?>
                         </div>
                         <!-- PARTE2 -->
-                        <h6><i class="bi bi-cash-stack"></i> CREDENCIALES</h6>
+                        <h6><i class="bi bi-card-text"></i> CREDENCIALES</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <!-- Cargo los datos del rol de cada uno y solo sale el rol de superAdmin
@@ -338,6 +351,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>                
         <?php elseif (($accion === "editarPass" && $id)): ?>                
                     <form method="POST" enctype="multipart/form-data">
+                        <h6><i class="bi bi-card-text"></i> CONTRASEÑAS</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Contraseña *</label>
