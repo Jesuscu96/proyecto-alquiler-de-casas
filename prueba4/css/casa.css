@@ -1,0 +1,471 @@
+/* ========================================
+   ESTILOS PARA CASA.PHP
+   ======================================== */
+
+:root {
+    --primary: #0d6efd;
+    --secondary: #6c757d;
+    --tertiary: #f0f3f7;
+    --accent: #fd7e14;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* ========== NAVBAR ========== */
+.navbar {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.container-main {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* ========== BOTÓN VOLVER ========== */
+.btn-volver {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* ========== HEADER DE LA CASA ========== */
+.casa-header {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.casa-imagen {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+
+.casa-info {
+    padding: 2rem;
+}
+
+.casa-titulo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.ubicacion-badge {
+    display: inline-block;
+    background-color: var(--tertiary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* ========== CARACTERÍSTICAS ========== */
+.caracteristicas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.caracteristica-card {
+    background-color: var(--tertiary);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    border-left: 4px solid var(--primary);
+}
+
+.caracteristica-card i {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.caracteristica-card p {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+}
+
+/* ========== GALERÍA DE IMÁGENES ========== */
+.galeria-fotos {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.galeria-fotos h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.galeria-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.galeria-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.galeria-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.galeria-item:hover img {
+    transform: scale(1.05);
+}
+
+.galeria-descripcion {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.75rem;
+    margin: 0;
+    font-size: 0.875rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.galeria-item:hover .galeria-descripcion {
+    transform: translateY(0);
+}
+
+/* ========== DETALLES DE LA CASA ========== */
+.detalles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.detalle-item {
+    background-color: var(--tertiary);
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+}
+
+.detalle-item strong {
+    color: var(--primary);
+}
+
+/* ========== ELECTRODOMÉSTICOS ========== */
+.electrodomesticos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* ========== DESCRIPCIÓN ========== */
+.descripcion {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.descripcion h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.descripcion p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* ========== SERVICIOS ========== */
+.servicios-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.servicio-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: var(--tertiary);
+    border-radius: 6px;
+}
+
+.servicio-item i {
+    color: var(--accent);
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+/* ========== SECCIÓN DE PRECIO ========== */
+.precio-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.precio-noche {
+    font-size: 2.5rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.precio-texto {
+    color: #666;
+    font-size: 1rem;
+}
+
+/* ========== FORMULARIO DE RESERVA ========== */
+.formulario-reserva {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid var(--accent);
+}
+
+.formulario-reserva h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 2px solid var(--tertiary);
+    border-radius: 6px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+
+.btn-reservar {
+    background-color: var(--accent);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-reservar:hover {
+    background-color: #e07d0b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+    color: white;
+}
+
+.btn-reservar:active {
+    transform: translateY(0);
+}
+
+/* ========== ALERTAS ========== */
+.alerta {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+}
+
+.alerta-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alerta-exito {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+/* ========== INFORMACIÓN DE SESIÓN ========== */
+.info-sesion {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.info-sesion a {
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+/* ========== FECHAS RESERVADAS ========== */
+.reservas-disponibles {
+    background-color: var(--tertiary);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+.reservas-disponibles h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.fecha-reservada {
+    display: inline-block;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .casa-titulo {
+        font-size: 1.5rem;
+    }
+
+    .precio-noche {
+        font-size: 1.75rem;
+    }
+
+    .caracteristicas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .servicios-lista {
+        grid-template-columns: 1fr;
+    }
+
+    .casa-imagen {
+        height: 250px;
+    }
+
+    .casa-info {
+        padding: 1.5rem;
+    }
+
+    .galeria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .galeria-item img {
+        height: 150px;
+    }
+
+    .detalles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .electrodomesticos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .casa-titulo {
+        font-size: 1.25rem;
+    }
+
+    .precio-noche {
+        font-size: 1.5rem;
+    }
+
+    .descripcion {
+        padding: 1rem;
+    }
+
+    .formulario-reserva {
+        padding: 1rem;
+    }
+
+    .galeria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .galeria-item img {
+        height: 120px;
+    }
+
+    .casa-info {
+        padding: 1rem;
+    }
+}

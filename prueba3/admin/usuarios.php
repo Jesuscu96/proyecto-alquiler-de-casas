@@ -211,7 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
                                 <a href="?accion=editarPass&id=<?php echo $usuario['id_usuario']; ?>" class="btn btn-outline-warning btn-action">
-                                    <i class="bi bi-key"></i> Pass
+                                    <i class="bi bi-key"></i> Editar Password
                                 </a>
                                 <a href="?accion=eliminar&id=<?php echo $usuario['id_usuario']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?')">
                                     <i class="bi bi-trash"></i> Eliminar
@@ -220,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
-            </table>
+            </table>    
         </div>
 
         <!-- Formulario para crear/editar usuario -->
