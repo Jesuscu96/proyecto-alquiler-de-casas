@@ -610,6 +610,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         <a href="?accion=editar&id=<?= $casa['id_casa'] ?>" class="btn btn-warning btn-action">
                                             <i class="bi bi-pencil-square"></i> Editar
                                         </a>
+                                        <button type="button" class="btn btn-primary btn-action" 
+                                            onclick="verDetalles(<?= htmlspecialchars(json_encode($casa)) ?>)"
+                                            title="Ver información">
+                                        <i class="fas fa-info-circle"></i> Info
+                                        </button>
                                         <a href="?accion=eliminar&id=<?= $casa['id_casa'] ?>" 
                                            class="btn btn-danger btn-action"
                                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta casa? Esta acción no se puede deshacer.');">
@@ -643,5 +648,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+         function verDetalles(casa) {
+            let detalles = `
+                🏠 DETALLES COMPLETOS
+                ════════════════════════════════════════
+                📋 BÁSICA: ${casa.nombre} | €${casa.precio_noche}/noche | ${casa.capacidad} pers.
+                📍 UBICACIÓN: ${casa.ciudad}, ${casa.provincia}
+                👤 PROPIETARIO: ${casa.propietario}
+                🏠 HABITACIONES: ${casa.num_banos} baños | ${casa.num_cocinas} cocinas
+                🍳 ELECTRODOMÉSTICOS: ${casa.num_lavadora} lavadora(s) | ${casa.num_lavavajillas} lavavajillas
+                ⚙️ SERVICIOS: WiFi: ${casa.tiene_wifi ? '✅' : '❌'} | Calefacción: ${casa.tiene_calefaccion ? '✅' : '❌'}
+                🏞️ EXTERIORES: Piscina: ${casa.tiene_piscina ? '✅' : '❌'} | Jardín: ${casa.tiene_jardin ? '✅' : '❌'}
+                🎭 EXTRAS: Chimenea: ${casa.tiene_chimenea ? '✅' : '❌'} | Adaptado: ${casa.tiene_adaptacion_discapacitados ? '✅' : '❌'}`;
+            alert(detalles);
+        }
+    </script>
 </body>
 </html>

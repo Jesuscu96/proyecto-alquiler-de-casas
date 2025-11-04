@@ -120,7 +120,7 @@ $casasVip = $casaObj->getCasasVip();
       <!-- Card example 1 -->
       <div class="col">
         <div class="card h-100 shadow-sm">
-          <img src="./admin/<?=$casa['imagen_principal']?>" class="card-img-top" alt="Casa en Málaga">
+          <img src="<?=$casa['imagen_principal']?>" class="card-img-top" alt="Casa en Málaga">
           <div class="card-body">
             <h5 class="card-title"><?=$casa['nombre']?></h5>
             <p class="card-text mb-0"><strong>Provincia:</strong> <?=$casa['provincia']?></p>

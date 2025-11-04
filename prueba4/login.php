@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
 </head>
 <body>
+  
   <form method="POST" class="card">
     <?php if ($errorLogin): ?><div class="alerta alerta-error"><?= $errorLogin ?></div><?php endif; ?>
 

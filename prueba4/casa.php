@@ -185,8 +185,8 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
                 </ul>
             </div>
         </div>
-    </nav>
-
+    </nav>   
+    
     <!-- Contenido Principal -->
     <div class="container container-main">
         <a href="index.php" class="btn-volver">
