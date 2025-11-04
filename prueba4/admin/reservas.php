@@ -1,7 +1,5 @@
 <?php
-require_once "./includes/crudCasas.php";
-require_once "./includes/crudUbicacion.php";
-require_once "./includes/crudUsuarios.php";
+require_once "./includes/crudReservas.php";
 require_once "./includes/sessions.php";
 $sesion = new Sessions();
 if (!$sesion->comprobarSesion()) {
@@ -9,63 +7,39 @@ if (!$sesion->comprobarSesion()) {
     exit();
 }
 
-$casaObj = new Casas();
-$ubicacionObj = new Ubicacion();
-$usuariosObj = new Usuarios();
+$reservaObj = new Reservas();
 
 // Obtener datos
-$todasLasCasas = $casaObj->getAll();
-$comunidades = $ubicacionObj->getAllComunidades();
-$provincias = $ubicacionObj->getAllProvincias();
-$ciudades = $ubicacionObj->getAllCiudades();
-$propietarios = $usuariosObj->getAll();
+$reservas = $reservaObj->getAll();
 
 // Parámetros de acción
 $accion = $_GET['accion'] ?? null;
 $id = $_GET['id'] ?? null;
 
-// Filtros
-$filtro_provincia = $_GET['provincia'] ?? '';
-$filtro_ciudad = $_GET['ciudad'] ?? '';
-$filtro_capacidad = (int)($_GET['capacidad'] ?? 0);
-$filtro_precio = (float)($_GET['precio'] ?? 999999);
 
-// Aplicar filtros
-$casas = array_filter($todasLasCasas, function($casa) {
-    global $filtro_provincia, $filtro_ciudad, $filtro_capacidad, $filtro_precio;
-    if ($filtro_provincia && $casa['id_provincia'] != $filtro_provincia) return false;
-    if ($filtro_ciudad && $casa['id_ciudad'] != $filtro_ciudad) return false;
-    if ($casa['capacidad'] < $filtro_capacidad) return false;
-    if ($casa['precio_noche'] > $filtro_precio) return false;
-    return true;
-});
 
-$casas = array_values($casas);
 
-// Paginación
-$pagina = (int)($_GET['pagina'] ?? 1);
-$por_pagina = 8;
-$total_casas = count($casas);
-$total_paginas = ceil($total_casas / $por_pagina);
-$inicio = ($pagina - 1) * $por_pagina;
-$casas_pagina = array_slice($casas, $inicio, $por_pagina);
+// // Paginación
+// $pagina = (int)($_GET['pagina'] ?? 1);
+// $por_pagina = 8;
+// $total_casas = count($casas);
+// $total_paginas = ceil($total_casas / $por_pagina);
+// $inicio = ($pagina - 1) * $por_pagina;
+// $casas_pagina = array_slice($casas, $inicio, $por_pagina);
 
 // Calcular estadísticas
-$casas_vip = array_filter($todasLasCasas, function($casa) {
-    return $casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados'];
-});
-$total_casas_todos = count($todasLasCasas);
-$total_casas_vip = count($casas_vip);
-$precio_promedio = !empty($todasLasCasas) ? array_sum(array_column($todasLasCasas, 'precio_noche')) / $total_casas_todos : 0;
+
+$totalReservas = count($reservas);
+
 
 // Datos por defecto del formulario
-$datos_casa = [
-    'id_propietario' => '',
-    'id_comunidad' => '',
-    'id_provincia' => '',
-    'id_ciudad' => '',
-    'nombre' => '',
-    'capacidad' => 1,
+$datos_reserva = [
+    'id_usuario' => '',
+    'id_casa' => '',
+    'fecha_inicio' => '',
+    'fecha_fin' => '',
+    'total_precio' => '',
+    'estado' => 1,
     'precio_noche' => 0,
     'num_banos' => 1,
     'num_cocinas' => 1,
@@ -97,12 +71,12 @@ $datos_casa = [
 
 // Si es editar, cargar datos
 if ($accion === "editar" && $id) {
-    $datos_casa = $casaObj->getCasaById($id);
+    $datos_casa = $casaObj->getReservaById($id);
 }
 
 // Procesar eliminación
 if ($accion === 'eliminar' && $id) {
-    $casaObj->eliminarCasa($id);
+    $casaObj->eliminarReserva($id);
     header("Location: casas2.php");
     exit();
 }
@@ -110,12 +84,12 @@ if ($accion === 'eliminar' && $id) {
 // Procesar formulario POST
 $errores = [];
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_propietario = $_POST['id_propietario'] ?? '';
-    $id_comunidad = $_POST['id_comunidad'] ?? '';
-    $id_provincia = $_POST['id_provincia'] ?? '';
-    $id_ciudad = $_POST['id_ciudad'] ?? '';
-    $nombre = trim($_POST['nombre'] ?? '');
-    $capacidad = (int)($_POST['capacidad'] ?? 1);
+    $id_usuario = $_POST['id_usuario'] ?? '';
+    $id_casa = $_POST['id_casa'] ?? '';
+    $fecha_inicio = $_POST['fecha_inicio'] ?? '';
+    $fecha_fin = $_POST['fecha_fin'] ?? '';
+    $total_precio = trim($_POST['total_precio'] ?? '');
+    $estado = trim($_POST['estado'] ?? '');
     $precio_noche = (float)($_POST['precio_noche'] ?? 0);
     $num_banos = (int)($_POST['num_banos'] ?? 1);
     $num_cocinas = (int)($_POST['num_cocinas'] ?? 1);
@@ -123,58 +97,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $num_hab_familiares = (int)($_POST['num_hab_familiares'] ?? 0);
     $num_aparcamientos = (int)($_POST['num_aparcamientos'] ?? 0);
     $num_lavadora = (int)($_POST['num_lavadora'] ?? 0);
-    $num_secadora = (int)($_POST['num_secadora'] ?? 0);
-    $num_lavavajillas = (int)($_POST['num_lavavajillas'] ?? 0);
-    $num_horno = (int)($_POST['num_horno'] ?? 0);
-    $num_microondas = (int)($_POST['num_microondas'] ?? 0);
-    $num_nevera = (int)($_POST['num_nevera'] ?? 1);
-    $num_congelador = (int)($_POST['num_congelador'] ?? 0);
-    $tiene_wifi = isset($_POST['tiene_wifi']) ? 1 : 0;
-    $num_ascensores = (int)($_POST['num_ascensores'] ?? 0);
-    $tiene_calefaccion = isset($_POST['tiene_calefaccion']) ? 1 : 0;
-    $tiene_aire_acondicionado = isset($_POST['tiene_aire_acondicionado']) ? 1 : 0;
-    $tiene_piscina = isset($_POST['tiene_piscina']) ? 1 : 0;
-    $tiene_banera = isset($_POST['tiene_banera']) ? 1 : 0;
-    $tiene_barbacoa = isset($_POST['tiene_barbacoa']) ? 1 : 0;
-    $tiene_chimenea = isset($_POST['tiene_chimenea']) ? 1 : 0;
-    $tiene_adaptacion_discapacitados = isset($_POST['tiene_adaptacion_discapacitados']) ? 1 : 0;
-    $tiene_jardin = isset($_POST['tiene_jardin']) ? 1 : 0;
-    $tiene_patio = isset($_POST['tiene_patio']) ? 1 : 0;
-    $tiene_sala_cine = isset($_POST['tiene_sala_cine']) ? 1 : 0;
-    $tiene_secador_pelo = isset($_POST['tiene_secador_pelo']) ? 1 : 0;
+   
     
-    // Manejo de imagen
-    $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
-    if (!empty($_FILES['imagen_principal']['name'])) {
-        $carpeta = './imagenes/';
-        $nombreArchivo = basename($_FILES['imagen_principal']['name']);
-        $rutaArchivo = $carpeta . $nombreArchivo;
-        if (move_uploaded_file($_FILES['imagen_principal']['tmp_name'], $rutaArchivo)) {
-            $imagen_guardada = $rutaArchivo;
-        } else {
-            $errores['imagen'] = "Error al subir la imagen.";
-        }
-    }
 
     // Validaciones
-    if (empty($id_propietario)) $errores['id_propietario'] = "Selecciona un propietario.";
-    if (empty($id_comunidad)) $errores['id_comunidad'] = "Selecciona una comunidad.";
-    if (empty($id_provincia)) $errores['id_provincia'] = "Selecciona una provincia.";
-    if (empty($id_ciudad)) $errores['id_ciudad'] = "Selecciona una ciudad.";
-    if (empty($nombre)) $errores['nombre'] = "El nombre no puede estar vacío.";
-    if ($capacidad < 1) $errores['capacidad'] = "La capacidad debe ser al menos 1.";
-    if ($precio_noche < 0) $errores['precio_noche'] = "El precio no puede ser negativo.";
-    if ($num_banos < 1) $errores['num_banos'] = "Debe tener al menos 1 baño.";
-    if ($num_cocinas < 1) $errores['num_cocinas'] = "Debe tener al menos 1 cocina.";
-    if ($num_nevera < 1) $errores['num_nevera'] = "Debe tener al menos 1 nevera.";
+    if (empty($id_usuario)) $errores['id_usuario'] = "El total_precio del cliente no puede estar vacío.";
+    if (empty($id_casa)) $errores['id_casa'] = "El total_precio del propietario no puede estar vacío.";
+    if (empty($fecha_inicio)) $errores['fecha_inicio'] = "La fecha de inicio no puede estar vacia.";
+    if (empty($fecha_fin)) $errores['fecha_fin'] = "La fecha del fin no puede estar vacia.";
+    if (empty($total_precio)) $errores['total_precio'] = "El total_precio no puede estar vacío.";
+    
 
     // Guardar si no hay errores
     if (empty($errores)) {
         try {
             if ($accion === 'crear') {
-                $casaObj->insertarCasa(
-                    $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
-                    $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas,
+                $casaObj->insertarReserva(
+                    $id_usuario, $id_casa, $fecha_inicio, $fecha_fin,
+                    $total_precio, $estado, $precio_noche, $num_banos, $num_cocinas,
                     $num_hab_individuales, $num_hab_familiares, $num_aparcamientos,
                     $num_lavadora, $num_secadora, $num_lavavajillas, $num_horno,
                     $num_microondas, $num_nevera, $num_congelador, $tiene_wifi,
@@ -184,9 +124,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
                 );
             } elseif ($accion === 'editar' && $id) {
-                $casaObj->actualizarCasa(
-                    $id, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
-                    $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas,
+                $casaObj->actualizarReserva(
+                    $id, $id_usuario, $id_casa, $fecha_inicio, $fecha_fin,
+                    $total_precio, $estado, $precio_noche, $num_banos, $num_cocinas,
                     $num_hab_individuales, $num_hab_familiares, $num_aparcamientos,
                     $num_lavadora, $num_secadora, $num_lavavajillas, $num_horno,
                     $num_microondas, $num_nevera, $num_congelador, $tiene_wifi,
@@ -268,18 +208,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Propietario *</label>
-                                <select name="id_propietario" class="form-select" required>
+                                <select name="id_usuario" class="form-select" required>
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($propietarios as $prop): ?>
-                                        <option value="<?= $prop['id_usuario'] ?>" <?= $datos_casa['id_propietario'] == $prop['id_usuario'] ? 'selected' : '' ?>>
+                                        <option value="<?= $prop['id_usuario'] ?>" <?= $datos_casa['id_usuario'] == $prop['id_usuario'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($prop['username']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Nombre de la Casa *</label>
-                                <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($datos_casa['nombre']) ?>" required>
+                                <label class="form-label">total_precio de la Casa *</label>
+                                <input type="text" name="total_precio" class="form-control" value="<?= htmlspecialchars($datos_casa['total_precio']) ?>" required>
                             </div>
                         </div>
 
@@ -288,45 +228,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">Comunidad Autónoma *</label>
-                                <select name="id_comunidad" class="form-select" required>
+                                <select name="id_casa" class="form-select" required>
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($comunidades as $com): ?>
-                                        <option value="<?= $com['id_comunidad'] ?>" <?= $datos_casa['id_comunidad'] == $com['id_comunidad'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($com['nombre']) ?>
+                                        <option value="<?= $com['id_casa'] ?>" <?= $datos_casa['id_casa'] == $com['id_casa'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($com['total_precio']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Provincia *</label>
-                                <select name="id_provincia" class="form-select" required>
+                                <select name="fecha_inicio" class="form-select" required>
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($provincias as $prov): ?>
-                                        <option value="<?= $prov['id_provincia'] ?>" <?= $datos_casa['id_provincia'] == $prov['id_provincia'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($prov['nombre']) ?>
+                                        <option value="<?= $prov['fecha_inicio'] ?>" <?= $datos_casa['fecha_inicio'] == $prov['fecha_inicio'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($prov['total_precio']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Ciudad *</label>
-                                <select name="id_ciudad" class="form-select" required>
+                                <select name="fecha_fin" class="form-select" required>
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($ciudades as $ciudad): ?>
-                                        <option value="<?= $ciudad['id_ciudad'] ?>" <?= $datos_casa['id_ciudad'] == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($ciudad['nombre']) ?>
+                                        <option value="<?= $ciudad['fecha_fin'] ?>" <?= $datos_casa['fecha_fin'] == $ciudad['fecha_fin'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($ciudad['total_precio']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- CAPACIDAD Y PRECIO -->
-                        <h6><i class="bi bi-cash-stack"></i> CAPACIDAD Y PRECIO</h6>
+                        <!-- estado Y PRECIO -->
+                        <h6><i class="bi bi-cash-stack"></i> estado Y PRECIO</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Capacidad (personas) *</label>
-                                <input type="number" name="capacidad" class="form-control" min="1" value="<?= $datos_casa['capacidad'] ?>" required>
+                                <label class="form-label">estado (personas) *</label>
+                                <input type="number" name="estado" class="form-control" min="1" value="<?= $datos_casa['estado'] ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Precio por Noche (€) *</label>
@@ -521,8 +461,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <select name="provincia" class="form-select">
                             <option value="">Todas</option>
                             <?php foreach ($provincias as $prov): ?>
-                                <option value="<?= $prov['id_provincia'] ?>" <?= $filtro_provincia == $prov['id_provincia'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($prov['nombre']) ?>
+                                <option value="<?= $prov['fecha_inicio'] ?>" <?= $filtro_provincia == $prov['fecha_inicio'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($prov['total_precio']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -532,15 +472,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <select name="ciudad" class="form-select">
                             <option value="">Todas</option>
                             <?php foreach ($ciudades as $ciudad): ?>
-                                <option value="<?= $ciudad['id_ciudad'] ?>" <?= $filtro_ciudad == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($ciudad['nombre']) ?>
+                                <option value="<?= $ciudad['fecha_fin'] ?>" <?= $filtro_ciudad == $ciudad['fecha_fin'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($ciudad['total_precio']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Capacidad Mín.</label>
-                        <input type="number" name="capacidad" class="form-control" min="0" value="<?= $filtro_capacidad ?>">
+                        <label class="form-label">estado Mín.</label>
+                        <input type="number" name="estado" class="form-control" min="0" value="<?= $filtro_estado ?>">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Precio Máx. (€)</label>
@@ -567,10 +507,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th>Nombre</th>
+                            <th>total_precio</th>
                             <th>Ubicación</th>
                             <th>Precio/Noche</th>
-                            <th>Capacidad</th>
+                            <th>estado</th>
                             <th>Adaptación</th>
                             <th>Acciones</th>
                         </tr>
@@ -593,10 +533,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             <span class="text-muted">Sin imagen</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= htmlspecialchars($casa['nombre']) ?></td>
+                                    <td><?= htmlspecialchars($casa['total_precio']) ?></td>
                                     <td><?= htmlspecialchars($casa['ciudad'] ?? 'N/A') ?></td>
                                     <td><strong>€<?= number_format($casa['precio_noche'], 2) ?></strong></td>
-                                    <td><?= $casa['capacidad'] ?> pers.</td>
+                                    <td><?= $casa['estado'] ?> pers.</td>
                                     <td>
                                         <?php if ($casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados']): ?>
                                             <span class="badge badge-vip">⭐ VIP Premium Accesible</span>
@@ -629,7 +569,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <ul class="pagination">
                         <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                             <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
-                                <a class="page-link" href="?pagina=<?= $i ?>&provincia=<?= $filtro_provincia ?>&ciudad=<?= $filtro_ciudad ?>&capacidad=<?= $filtro_capacidad ?>&precio=<?= $filtro_precio ?>">
+                                <a class="page-link" href="?pagina=<?= $i ?>&provincia=<?= $filtro_provincia ?>&ciudad=<?= $filtro_ciudad ?>&estado=<?= $filtro_estado ?>&precio=<?= $filtro_precio ?>">
                                     <?= $i ?>
                                 </a>
                             </li>

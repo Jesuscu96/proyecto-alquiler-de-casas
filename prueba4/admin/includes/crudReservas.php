@@ -4,18 +4,18 @@ require_once("database.php");
 
 class Reservas {
    
+    // public function getAll() {
+    //     $db = new Connection();
+    //     $conn = $db->getConnection();
+        
+    //     $sql = "SELECT * FROM reservas";
+        
+    //     $result = $conn->query($sql);
+    //     $db->closeConnection($conn);
+    //     //cuando devuelve un solo resultado
+    //     return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    // }
     public function getAll() {
-        $db = new Connection();
-        $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM reservas";
-        
-        $result = $conn->query($sql);
-        $db->closeConnection($conn);
-        //cuando devuelve un solo resultado
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    }
-    public function getReservasConDetalles() {
         $db = new Connection();
         $conn = $db->getConnection();
 
