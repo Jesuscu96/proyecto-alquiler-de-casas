@@ -80,7 +80,7 @@ class Reservas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
     } */
-    public function insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado = 'pendiente') {
+    public function insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado) {
         $db = new Connection();
         $conn = $db->getConnection();
 

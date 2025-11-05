@@ -20,7 +20,7 @@ Hacer que un usuario admin no pueda cambiar el rol de un superAdmin a uno inferi
 
 Crear reservas.php ✅ y revisar reservas.php crudReserevas.php ⌛ 
 
-Dar formato a las fechas en casa.php y reservas.php ⌛  **$fechaOriginal = new Datetime($libro['fecha']); <?= $fechaOriginal->format("d/m/Y")?>**
+Dar formato a las fechas en casa.php y reservas.php ✅
 
 En casa.php cambiar el **required** por if else de errores
 
@@ -41,3 +41,5 @@ Que un usuario Cliente cree una casa ⌛
 Cambiar el style de casa.php a al achivo styles.css ⌛
 
 En casas mirar si son camas o habitaciones que es mejor poner ⌛
+
+Intentar mandar email ⌛

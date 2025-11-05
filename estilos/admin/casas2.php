@@ -103,6 +103,12 @@ if ($accion === "editar" && $id) {
 // Procesar eliminación
 if ($accion === 'eliminar' && $id) {
     $casaObj->eliminarCasa($id);
+    if ($casa && $casa['imagen_principal']) {
+        $rutaBorrdo = "../imagenes/" . $casa['imagen_principal'];
+        if (file_exists($rutaBorrado)) {
+            unlink($rutaBorrado);
+        }
+    }
     header("Location: casas2.php");
     exit();
 }
@@ -146,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Manejo de imagen
     $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
     if (!empty($_FILES['imagen_principal']['name'])) {
-        $carpeta = '../imagenes/';
+        $carpeta = './imagenes/';
         $nombreArchivo = basename($_FILES['imagen_principal']['name']);
         $rutaArchivo = $carpeta . $nombreArchivo;
         if (move_uploaded_file($_FILES['imagen_principal']['tmp_name'], $rutaArchivo)) {

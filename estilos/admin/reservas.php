@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Fecha Incio Reserva *</label>
-                                <h6><?= htmlspecialchars($datos_reserva['fecha_inicio'])->format('d/m/Y') ?></h6>
+                                
                                 <input type="date" name="fecha_inicio" class="form-control" value="<?= htmlspecialchars($datos_reserva['fecha_inicio']) ?>">
                                 <?php if (isset($erroresFecha_inicio) && !empty($erroresFecha_inicio)): ?>
                                     <div class="text-danger small mt-1"><?= $erroresFecha_inicio ?></div>
@@ -203,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Fecha Fim Reserva *</label>
-                                <h6><?= htmlspecialchars($datos_reserva['fecha_fin'])->format('d/m/Y') ?></h6>
+                                
                                 <input type="date" name="fecha_fin" class="form-control" value="<?= htmlspecialchars($datos_reserva['fecha_fin']) ?>">
                                 <?php if (isset($erroresFecha_fin) && !empty($erroresFecha_fin)): ?>
                                     <div class="text-danger small mt-1"><?= $erroresFecha_fin ?></div>

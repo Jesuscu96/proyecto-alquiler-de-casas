@@ -83,12 +83,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $dias = (new DateTime($fecha_inicio))->diff(new DateTime($fecha_fin))->days;
       $precio_total = $dias * $datos_casa['precio_noche'];
 
-      $reservasObj->insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, 'pendiente', $precio_total);
-
-      $exitoReserva = "¡Reserva creada exitosamente! Está en estado pendiente.";
-      // Refrescar reservas
+      $reservasObj->insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $precio_total, 'confirmada');
+      //header("Location: casa?id=" . $id_usuario . ".php");
+      //exit();
+      //para refrescar 
       $todas = $reservasObj->getAll();
-      $reservasCasa = array_filter($todas, fn($r) => $r['id_casa'] == $id_casa);
+      $exitoReserva = "¡Reserva creada exitosamente! Está en estado pendiente.";
+      
     } catch (Exception $e) {
       $errorReserva = "Error al crear la reserva: " . $e->getMessage();
     }
@@ -271,7 +272,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
                   <tr>
                     <td><?= date('d/m/Y', strtotime($reserva['fecha_inicio'])) ?></td>
                     <td><?= date('d/m/Y', strtotime($reserva['fecha_fin'])) ?></td>
-                    <td><span class="badge bg-warning text-dark"><?= ucfirst($reserva['estado']) ?></span></td>
+                    <td><span class="badge bg-warning text-dark"><?= htmlspecialchars($reserva['estado']) ?></span></td>
                   </tr>
                 <?php endforeach; ?>
               <?php else: ?>

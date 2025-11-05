@@ -92,6 +92,18 @@ class Casas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
     }
+    public function insertarImagen($id_casa, $url, $descripcion = null) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+
+        $sql = "INSERT INTO imagenes (id_casa, url, descripcion) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iss", $id_casa, $url, $descripcion);
+        $stmt->execute();
+
+        $db->closeConnection($conn);
+    }
+
     public function getImagenesByCasa($id_casa) {
         $db = new Connection();
         $conn = $db->getConnection();
