@@ -1,5 +1,7 @@
 <?php
 // Detectar página actual
+require_once "./admin/includes/sessions.php";
+$sesion = new Sessions();
 $paginaActual = basename($_SERVER['PHP_SELF']);
 ?>
 <nav class="navbar-custom">
@@ -10,13 +12,20 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
     </div>
     <ul class="navbar-menu">
       <li>
-        <a href="./index.php" class="navbar-link <?php echo $paginaActual === 'index.php' ? 'active' : ''; ?>">Inicio</a>
+        <a href="./index.php" class="navbar-link <?= $paginaActual === 'index.php' ? 'active' : ''; ?>">Inicio</a>
       </li>
+  <?php if (!$sesion->comprobarSesion()) { ?>
       <li>
-        <a href="./login.php" class="navbar-link <?php echo $paginaActual === 'login.php' ? 'active' : ''; ?>">Iniciar sesión</a>
+        <a href="./login.php" class="navbar-link <?= $paginaActual === 'login.php' ? 'active' : ''; ?>">Iniciar sesión</a>
       </li>
+  <?php } ?>
       <li>
-        <a href="./registro.php" class="navbar-link <?php echo $paginaActual === 'registro.php' ? 'active' : ''; ?>">Registrarse</a>
+        <span class="text-white me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
+        <a href="./admin/includes/logout.php" class="navbar-link <?= $paginaActual === 'login.php' ? 'active' : ''; ?>" >Cerrar Sesión</a>
+      </li>
+      
+      <li>
+        <a href="./registro.php" class="navbar-link <?= $paginaActual === 'registro.php' ? 'active' : ''; ?>">Registrarse</a>
       </li>
     </ul>
   </div>

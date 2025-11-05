@@ -166,7 +166,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             <div class="card text-center" style="border-top: 4px solid #4f46e5;">
               <div class="card-body">
                 <h5 class="card-title" style="color:#4f46e5;"><?= htmlspecialchars($datos_casa['num_hab_individuales'] + $datos_casa['num_hab_familiares']) ?></h5>
-                <p class="card-text small">Habitaciones</p>
+                <p class="card-text small">Camas</p>
               </div>
             </div>
           </div>
