@@ -2,28 +2,41 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-require_once "./admin/includes/crudUsuarios.php";
-require_once "./admin/includes/crudCasas.php";
-require_once "./admin/includes/crudReservas.php";
-require_once "./admin/includes/sessions.php";
-
-// Verificar sesión de administrador
-// verificarSesionAdmin();
+require_once "./includes/sessions.php";
+$sesion = new Sessions();
+if (!$sesion->comprobarSesion()) {
+    header("Location: ../login.php");
+    exit();
+}
+$usuario = $_SESSION['usuario']['username'];
+require_once "./includes/crudUsuarios.php";
+require_once "./includes/crudCasas.php";
+require_once "./includes/crudReservas.php";
+require_once "./includes/sessions.php";
+require_once "./includes/crudUbicacion.php";
 
 $usuariosObj = new Usuarios();
 $casaObj = new Casas();
 $reservasObj = new Reservas();
-
+$ubicacionObj = new Ubicacion();
 $usuarios = $usuariosObj->getAll();
 $casas = $casaObj->getAll();
 $reservas = $reservasObj->getAll();
 
+$comunidad = $ubicacionObj->getAllComunidades();
+$provincia = $ubicacionObj->getAllProvincias();
+$ciudad = $ubicacionObj->getAllCiudades();
+$casas = $casaObj->getAll();
+$casasVip = $casaObj->getCasasVip();
+
+
+
+
 // Calcular estadísticas
 $totalUsuarios = count($usuarios);
-$casasActivas = count(array_filter($casas, fn($c) => isset($c['disponible']) && $c['disponible']));
-$reservasPendientes = count(array_filter($reservas, fn($r) => isset($r['estado']) && $r['estado'] === 'pendiente'));
-$reservasConfirmadas = count(array_filter($reservas, fn($r) => isset($r['estado']) && $r['estado'] === 'confirmada'));
+$casasActivas = count($casas);
+//$reservasPendientes = count(array_filter($reservas, fn($r) => isset($r['estado']) && $r['estado'] === 'pendiente'));
+//$reservasConfirmadas = count(array_filter($reservas, fn($r) => isset($r['estado']) && $r['estado'] === 'confirmada'));
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -45,9 +58,9 @@ $reservasConfirmadas = count(array_filter($reservas, fn($r) => isset($r['estado'
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link active" href="admin.php">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="gestion-usuarios.php">Usuarios</a></li>
-          <li class="nav-item"><a class="nav-link" href="gestion-casas.php">Casas</a></li>
-          <li class="nav-item"><a class="nav-link" href="gestion-reservas.php">Reservas</a></li>
+          <li class="nav-item"><a class="nav-link" href="usuarios.php">Usuarios</a></li>
+          <li class="nav-item"><a class="nav-link" href="casas2.php">Casas</a></li>
+          <li class="nav-item"><a class="nav-link" href="reservas.php">Reservas</a></li>
           <li class="nav-item"><a class="nav-link" href="logout.php">Cerrar Sesión</a></li>
         </ul>
       </div>

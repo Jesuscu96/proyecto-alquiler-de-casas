@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 28-10-2025 a las 16:56:47
+-- Tiempo de generación: 06-11-2025 a las 20:00:29
 -- Versión del servidor: 9.1.0
 -- Versión de PHP: 8.3.14
 
@@ -68,20 +68,21 @@ CREATE TABLE IF NOT EXISTS `casas_vacacionales` (
   KEY `id_comunidad` (`id_comunidad`),
   KEY `id_provincia` (`id_provincia`),
   KEY `id_ciudad` (`id_ciudad`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `casas_vacacionales`
 --
 
 INSERT INTO `casas_vacacionales` (`id_casa`, `id_propietario`, `id_comunidad`, `id_provincia`, `id_ciudad`, `nombre`, `capacidad`, `precio_noche`, `num_banos`, `num_cocinas`, `num_hab_individuales`, `num_hab_familiares`, `num_aparcamientos`, `num_lavadora`, `num_secadora`, `num_lavavajillas`, `num_horno`, `num_microondas`, `num_nevera`, `num_congelador`, `tiene_wifi`, `num_ascensores`, `tiene_calefaccion`, `tiene_aire_acondicionado`, `tiene_piscina`, `tiene_banera`, `tiene_barbacoa`, `tiene_chimenea`, `tiene_adaptacion_discapacitados`, `tiene_jardin`, `tiene_patio`, `tiene_sala_cine`, `tiene_secador_pelo`, `imagen_principal`) VALUES
-(1, 17, 11, 37, 235, 'Apartamento Urbanización privada Mislata', 4, 120.00, 2, 1, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 'salon3-1.jpeg'),
-(2, 18, 1, 7, 35, 'Casa Mediterránea Vélez Málaga', 2, 110.00, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 'img-principal7-1.jpeg'),
-(30, 17, 1, 7, 32, 'Villa Marbella Sol', 6, 180.00, 3, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 'chimenea5-1.jpeg'),
-(31, 19, 11, 37, 233, 'Chalet Playa Gandía', 8, 220.00, 4, 1, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 'salon2.jpeg'),
-(32, 20, 10, 34, 211, 'Pisito Urbano Madrid Centro', 3, 130.00, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 'imagen-principal6-1.jpeg'),
-(33, 21, 13, 43, 233, 'Casa Rústica Galicia Verde', 5, 110.00, 3, 1, 2, 2, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 'img-principal8-1.jpeg'),
-(34, 22, 8, 28, 171, 'Casa Campestre Valladolid', 3, 90.00, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 'img-principal9-1.jpeg');
+(1, 17, 11, 37, 235, 'Apartamento Urbanización privada Mislata', 4, 120.00, 2, 1, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, './imagenes/salon3-1.jpeg'),
+(2, 18, 1, 7, 35, 'Casa Mediterránea Vélez Málaga', 2, 110.00, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, './imagenes/img-principal7-1.jpeg'),
+(30, 17, 1, 7, 32, 'Villa Marbella Sol', 6, 180.00, 3, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, './imagenes/chimenea5-1.jpeg'),
+(31, 19, 11, 37, 233, 'Chalet Playa Gandía', 8, 220.00, 4, 1, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, './imagenes/salon2.jpeg'),
+(32, 20, 10, 34, 211, 'Pisito Urbano Madrid Centro', 3, 130.00, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, './imagenes/imagen-principal6-1.jpeg'),
+(33, 21, 13, 43, 233, 'Casa Rústica Galicia Verde', 5, 110.00, 3, 1, 2, 2, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, './imagenes/img-principal8-1.jpeg'),
+(34, 22, 8, 28, 171, 'Casa Campestre Valladolid', 3, 90.00, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, './imagenes/img-principal9-1.jpeg'),
+(35, 17, 1, 7, 34, 'casa de prueba', 5, 130.00, 4, 4, 3, 2, 1, 3, 3, 3, 1, 1, 1, 0, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, './imagenes/img-principal7-1.jpeg');
 
 -- --------------------------------------------------------
 
@@ -395,7 +396,19 @@ CREATE TABLE IF NOT EXISTS `imagenes` (
   `descripcion` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id_imagen`),
   KEY `id_casa` (`id_casa`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `imagenes`
+--
+
+INSERT INTO `imagenes` (`id_imagen`, `id_casa`, `url`, `descripcion`) VALUES
+(1, 31, './imagenes/cocina2.jpeg', 'Cocina'),
+(2, 31, './imagenes/jardin2-1.jpeg', 'Jardin'),
+(3, 32, './imagenes/salon6-1.jpeg', 'Salon'),
+(4, 32, './imagenes/cocina6-1.jpeg', 'Cocina'),
+(5, 32, './imagenes/dormitorio6-1.jpeg', 'Dormitorio'),
+(6, 32, './imagenes/baño6-1.jpeg', 'Baño');
 
 -- --------------------------------------------------------
 
@@ -480,13 +493,31 @@ CREATE TABLE IF NOT EXISTS `reservas` (
   `id_casa` int NOT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
-  `num_huespedes` int NOT NULL,
   `total_precio` decimal(10,2) NOT NULL,
   `estado` enum('pendiente','confirmada','cancelada') COLLATE utf8mb4_general_ci DEFAULT 'pendiente',
   PRIMARY KEY (`id_reserva`),
-  UNIQUE KEY `id_casa` (`id_casa`,`fecha_inicio`,`fecha_fin`),
-  KEY `id_usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `id_casa` (`id_casa`,`fecha_inicio`,`fecha_fin`) USING BTREE,
+  KEY `id_usuario` (`id_usuario`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `reservas`
+--
+
+INSERT INTO `reservas` (`id_reserva`, `id_usuario`, `id_casa`, `fecha_inicio`, `fecha_fin`, `total_precio`, `estado`) VALUES
+(40, 9, 1, '2025-12-01', '2025-12-05', 480.00, 'confirmada'),
+(41, 9, 2, '2025-12-10', '2025-12-12', 220.00, 'pendiente'),
+(42, 10, 30, '2025-12-15', '2025-12-20', 900.00, 'confirmada'),
+(43, 11, 31, '2025-11-25', '2025-11-28', 660.00, 'confirmada'),
+(44, 12, 32, '2025-12-05', '2025-12-08', 390.00, 'pendiente'),
+(45, 13, 33, '2025-12-03', '2025-12-06', 330.00, 'confirmada'),
+(46, 15, 34, '2025-12-20', '2025-12-25', 450.00, 'pendiente'),
+(47, 16, 35, '2025-11-28', '2025-12-02', 520.00, 'confirmada'),
+(50, 9, 30, '2026-05-06', '2026-05-10', 720.00, 'confirmada'),
+(51, 9, 32, '2025-12-19', '2025-12-25', 780.00, 'confirmada'),
+(52, 9, 32, '2026-01-08', '2026-01-12', 520.00, 'confirmada'),
+(53, 9, 31, '2026-08-12', '2026-08-19', 1540.00, 'confirmada'),
+(54, 9, 32, '2025-11-27', '2025-11-30', 390.00, 'confirmada');
 
 -- --------------------------------------------------------
 
@@ -497,25 +528,25 @@ CREATE TABLE IF NOT EXISTS `reservas` (
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE IF NOT EXISTS `usuarios` (
   `id_usuario` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `nombre` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `apellidos` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `edad` int DEFAULT NULL,
-  `email` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `rol` enum('admin','cliente') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `apellidos` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `edad` int NOT NULL,
+  `email` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `rol` enum('admin','superAdmin','cliente') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `telefono` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `nombre_usuario` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `username`, `nombre`, `apellidos`, `edad`, `email`, `password`, `rol`, `telefono`) VALUES
-(1, 'admin01', 'Ana', 'García', 35, 'ana.admin1@mail.com', 'adminpass1', 'admin', '600111111'),
+(1, 'admin011', 'Ana', 'García', 44, 'ana.admin1@gmail.com', '$2y$10$/RuSyuRBKSdCRdiVbhVwBekLW4j/qaxbvWd1M3GpEcSVxIVGMOWmy', 'admin', '600111112'),
 (2, 'admin02', 'Luis', 'Martínez', 42, 'luis.admin2@mail.com', 'adminpass2', 'admin', '600111112'),
 (3, 'admin03', 'Marta', 'Ruiz', 38, 'marta.admin3@mail.com', 'adminpass3', 'admin', '600111113'),
 (4, 'admin04', 'Carlos', 'Sánchez', 29, 'carlos.admin4@mail.com', 'adminpass4', 'admin', '600111114'),
@@ -523,7 +554,7 @@ INSERT INTO `usuarios` (`id_usuario`, `username`, `nombre`, `apellidos`, `edad`,
 (6, 'admin06', 'Javier', 'Romero', 40, 'javier.admin6@mail.com', 'adminpass6', 'admin', '600111116'),
 (7, 'admin07', 'Patricia', 'Muñoz', 27, 'patricia.admin7@mail.com', 'adminpass7', 'admin', '600111117'),
 (8, 'admin08', 'David', 'Alonso', 31, 'david.admin8@mail.com', 'adminpass8', 'admin', '600111118'),
-(9, 'cliente01', 'Sergio', 'López', 24, 'sergio.cliente1@mail.com', 'clientepass1', 'cliente', '600222221'),
+(9, 'cliente01', 'Sergio', 'López', 24, 'sergio.cliente1@mail.com', '$2y$10$rDH5TIVmEILWwoUlfe5CA.CakD52iZ6UvjB6vgNWw4elerogUP2iq', 'cliente', '600222221'),
 (10, 'cliente02', 'Cristina', 'Pérez', 36, 'cristina.cliente2@mail.com', 'clientepass2', 'cliente', '600222222'),
 (11, 'cliente03', 'Manuel', 'Giménez', 40, 'manuel.cliente3@mail.com', 'clientepass3', 'cliente', '600222223'),
 (12, 'cliente04', 'Belén', 'Castro', 29, 'belen.cliente4@mail.com', 'clientepass4', 'cliente', '600222224'),
@@ -535,11 +566,12 @@ INSERT INTO `usuarios` (`id_usuario`, `username`, `nombre`, `apellidos`, `edad`,
 (18, 'propietario02', 'Sara', 'Navarro', 38, 'sara.prop2@mail.com', 'proppass2', 'cliente', '600333332'),
 (19, 'propietario03', 'Antonio', 'Serrano', 54, 'antonio.prop3@mail.com', 'proppass3', 'cliente', '600333333'),
 (20, 'propietario04', 'Laura', 'Torres', 47, 'laura.prop4@mail.com', 'proppass4', 'cliente', '600333334'),
-(21, 'propietario05', 'Isabel', 'Ibáñez', 31, 'isabel.prop5@mail.com', 'proppass5', '', '600333335'),
+(21, 'propietario05', 'Isabel', 'Ibáñez', 31, 'isabel.prop5@mail.com', 'proppass5', 'admin', '600333335'),
 (22, 'propietario06', 'Alberto', 'Reyes', 39, 'alberto.prop6@mail.com', 'proppass6', 'cliente', '600333336'),
 (23, 'propietario07', 'Paula', 'Ortega', 53, 'paula.prop7@mail.com', 'proppass7', 'cliente', '600333337'),
 (24, 'propietario08', 'Tomás', 'Herrera', 45, 'tomas.prop8@mail.com', 'proppass8', 'cliente', '600333338'),
-(25, 'JesusSolvam', 'Jesús', 'Clemente', 29, 'jesus@solvam.es', '$2y$10$bkzvLZ41rNIYWQVU5ojVHuGS1vrdq.JperY19lt3sjIOuNGNTWwBy', 'admin', '659616785');
+(25, 'JesusSolvam', 'Jesús', 'Clemente', 29, 'jesus@solvam.es', '$2y$10$bkzvLZ41rNIYWQVU5ojVHuGS1vrdq.JperY19lt3sjIOuNGNTWwBy', 'superAdmin', '659616785'),
+(26, 'usuarioPrueba', 'nombreprueba', 'apellidoprueba', 25, 'pedrogomez@solvam.com', '$2y$10$OhDHTJ/Wc2fb6OSlL5qrxOim8wa9O4fZJT/tRNA3fP6zTBryY4VYy', 'cliente', '605146755');
 
 --
 -- Restricciones para tablas volcadas
