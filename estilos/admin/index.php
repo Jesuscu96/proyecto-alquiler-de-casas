@@ -61,7 +61,7 @@ $casasActivas = count($casas);
           <li class="nav-item"><a class="nav-link" href="usuarios.php">Usuarios</a></li>
           <li class="nav-item"><a class="nav-link" href="casas2.php">Casas</a></li>
           <li class="nav-item"><a class="nav-link" href="reservas.php">Reservas</a></li>
-          <li class="nav-item"><a class="nav-link" href="logout.php">Cerrar Sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="./includes/logout.php">Cerrar Sesión</a></li>
         </ul>
       </div>
     </div>

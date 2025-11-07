@@ -15,7 +15,9 @@ $ubicacionObj = new Ubicacion();
 $usuariosObj = new Usuarios();
 
 // Obtener datos
-$todasLasCasas = $casaObj->getCasasByIdUsuario($_SESSION['usuario']['id_usuario']);
+$id_usuario = $_SESSION['usuario']['id_usuario'];
+
+$todasLasCasas = $casaObj->getCasasByIdUsuario($id_usuario);
 $comunidades = $ubicacionObj->getAllComunidades();
 $provincias = $ubicacionObj->getAllProvincias();
 $ciudades = $ubicacionObj->getAllCiudades();
@@ -111,7 +113,7 @@ if ($accion === 'eliminar' && $id) {
             unlink($rutaBorrado);
         }
     }
-    header("Location: casas2.php");
+    header("Location: añadircasa.php");
     exit();
 }
 
@@ -229,7 +231,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
                 );
             }
-            header("Location: casas2.php");
+            header("Location: añadircasa.php");
             exit();
         } catch (Exception $e) {
             $errores['general'] = "Error: " . $e->getMessage();
@@ -550,7 +552,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         <!-- BOTONES -->
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="casas2.php" class="btn btn-secondary">
+                            <a href="añadircasa.php" class="btn btn-secondary">
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
@@ -560,6 +562,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </form>
                 </div>
             </div>
+        <?php elseif ($accion === 'subir'): ?>
+            
 
         <?php else: ?>
             <!-- TABLA Y FILTROS (visible solo cuando NO hay accion) -->
@@ -609,6 +613,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="mb-3">
                 <a href="?accion=crear" class="btn btn-primary btn-lg">
                     <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Casa
+                </a>
+                <a href="?accion=subir" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-plus-circle-fill"></i> Añadir Imagenes
                 </a>
             </div>
 
