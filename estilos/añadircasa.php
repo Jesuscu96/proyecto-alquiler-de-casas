@@ -131,7 +131,7 @@ $erroresNum_cocinas = '';
 $erroresNum_nevera = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_propietario = $_POST['id_propietario'] ?? '';
+    $id_propietario = $id_usuario;
     $id_comunidad = $_POST['id_comunidad'] ?? '';
     $id_provincia = $_POST['id_provincia'] ?? '';
     $id_ciudad = $_POST['id_ciudad'] ?? '';
@@ -176,20 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errores['imagen'] = "Error al subir la imagen.";
         }
     }
-    if (!empty($_FILES['imagenes']['name'][0])) {
-    $carpeta = './imagenes/';
-    if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
-
-    foreach ($_FILES['imagenes']['tmp_name'] as $index => $tmpName) {
-        if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
-            $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
-            //$rutaArchivo = $carpeta . uniqid('galeria_') . $nombreArchivo;
-            if (move_uploaded_file($tmpName, $carpeta . $nombreArchivo)) { 
-                $casaObj->insertarImagen($id_casa, $nombreArchivo);
-            }
-        }
-    }
-}
+    
 
 
 
@@ -223,7 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errores)) {
         try {
             if ($accion === 'crear') {
-                $casaObj->insertarCasa(
+                $id_casa = $casaObj->insertarCasa(
                     $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
                     $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas,
                     $num_hab_individuales, $num_hab_familiares, $num_aparcamientos,
@@ -247,6 +234,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
                 );
             }
+            if (!empty($_FILES['imagenes']['name'][0])) {
+            $carpeta = './imagenes/';
+            if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+
+            foreach ($_FILES['imagenes']['tmp_name'] as $index => $tmpName) {
+                if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
+                    $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
+                    //$rutaArchivo = $carpeta . uniqid('galeria_') . $nombreArchivo;
+                    if (move_uploaded_file($tmpName, $carpeta . $nombreArchivo)) { 
+                        $casaObj->insertarImagen($id_casa, $nombreArchivo);
+                    }
+                }
+            }
+        }
             header("Location: añadircasa.php");
             exit();
         } catch (Exception $e) {
@@ -333,7 +334,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">Comunidad Autónoma *</label>
-                                <select name="id_comunidad" class="form-select" required>
+                                <select name="id_comunidad" class="form-select" >
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($comunidades as $com): ?>
                                         <option value="<?= $com['id_comunidad'] ?>" <?= $datos_casa['id_comunidad'] == $com['id_comunidad'] ? 'selected' : '' ?>>
@@ -347,7 +348,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Provincia *</label>
-                                <select name="id_provincia" class="form-select" required>
+                                <select name="id_provincia" class="form-select" >
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($provincias as $prov): ?>
                                         <option value="<?= $prov['id_provincia'] ?>" <?= $datos_casa['id_provincia'] == $prov['id_provincia'] ? 'selected' : '' ?>>
@@ -361,7 +362,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Ciudad *</label>
-                                <select name="id_ciudad" class="form-select" required>
+                                <select name="id_ciudad" class="form-select" >
                                     <option value="">Seleccionar...</option>
                                     <?php foreach ($ciudades as $ciudad): ?>
                                         <option value="<?= $ciudad['id_ciudad'] ?>" <?= $datos_casa['id_ciudad'] == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
@@ -567,7 +568,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <label class="form-label">Resto de imagenes * </label>
+                                <label class="form-label">Resto de imagenes  "seleciona con el control para multiples imagenes"* </label>
                                 <input type="file" name="imagenes[]" class="form-control" accept="image/*" multiple>
                                 <?php //if (!empty($datos_casa['imagen_principal'])): ?>
                                     <!--<small class="text-muted">Imagen actual: ?=<htmlspecialchars($datos_casa['imagen_principal']) ?></small>-->

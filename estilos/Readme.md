@@ -5,9 +5,10 @@ Cancelado: 🚫 🔴 ✖️ ❌
 Pendiente: 🕒 🟡 ⌛ 
 
 En casas poner botones de mas informacion con un alert confirm o modal ✅ Mejorar la visualizacion ⌛
+
 Cambiar todos lo iconos 🟡 ⌛
 
-En casas mejorar la visualizacios del formulario a mas pequeño ⌛
+En casas mejorar la visualizacios del formulario a mas pequeño y quitar duplicacions 🟡 ⌛
 
 Asegurarme del guardado de las imagenes es correcto en casas.php⌛
 
@@ -54,22 +55,3 @@ En casas mirar si son camas o habitaciones que es mejor poner ⌛
 Intentar mandar email ⌛
 
 
-<label>Otras imágenes</label>
-<input type="file" name="imagenes[]" class="form-control" accept="image/*" multiple>
-<?php
-
-if (!empty($_FILES['imagenes']['name'][0])) {
-    $carpeta = '../imagenes/';
-    if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
-
-    foreach ($_FILES['imagenes']['tmp_name'] as $index => $tmpName) {
-        if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
-            $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
-            $rutaArchivo = $carpeta . uniqid('galeria_') . $nombreArchivo;
-            if (move_uploaded_file($tmpName, $rutaArchivo)) { 
-                $casaObj->insertarImagen($id_casa, $rutaArchivo);
-            }
-        }
-    }
-}
-?>

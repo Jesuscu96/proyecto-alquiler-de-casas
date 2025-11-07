@@ -206,7 +206,9 @@ class Casas {
             $tiene_secador_pelo, $imagen_principal);
 
         $stmt->execute();
+        $id_casa = $conn->insert_id; //H
         $db->closeConnection($conn);
+        return $id_casa;
     }
 
 

@@ -25,6 +25,7 @@ body {
 }
 
 /* Navbar */
+
 .navbar-custom {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   padding: 1rem 0;
@@ -37,7 +38,7 @@ body {
 }
 .navbar-brand { display: flex; align-items: center; gap: .75rem; color: #fff; text-decoration: none; }
 .navbar-logo { font-size: 2rem; }
-.navbar-title { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+.navbar-title { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.5px ; }
 .navbar-menu { display: flex; list-style: none; gap: .5rem; flex-wrap: wrap; }
 .navbar-link {
   color: rgba(255,255,255,.9); text-decoration: none; padding: .75rem 1rem;
