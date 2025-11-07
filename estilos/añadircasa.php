@@ -164,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tiene_sala_cine = isset($_POST['tiene_sala_cine']) ? 1 : 0;
     $tiene_secador_pelo = isset($_POST['tiene_secador_pelo']) ? 1 : 0;
     
-    // Manejo de imagen
+    // Manejo de imagen principal
     $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
     if (!empty($_FILES['imagen_principal']['name'])) {
         $carpeta = './imagenes/';
@@ -176,6 +176,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errores['imagen'] = "Error al subir la imagen.";
         }
     }
+    if (!empty($_FILES['imagenes']['name'][0])) {
+    $carpeta = './imagenes/';
+    if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+
+    foreach ($_FILES['imagenes']['tmp_name'] as $index => $tmpName) {
+        if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
+            $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
+            //$rutaArchivo = $carpeta . uniqid('galeria_') . $nombreArchivo;
+            if (move_uploaded_file($tmpName, $nombreArchivo)) { 
+                $casaObj->insertarImagen($id_casa, $nombreArchivo);
+            }
+        }
+    }
+}
+
+
 
     // Validaciones
     if ($accion === 'crear' || $accion === 'editar') {
@@ -542,11 +558,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <h6><i class="bi bi-image-fill"></i> IMAGEN PRINCIPAL</h6>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <label class="form-label">Imagen Principal</label>
-                                <input type="file" name="imagen_principal" class="form-control" accept="image/                          *">
+                                <label class="form-label">Imagen Principal "portada"</label>
+                                <input type="file" name="imagen_principal" class="form-control" accept="image/*" >
                                 <?php if (!empty($datos_casa['imagen_principal'])): ?>
                                     <small class="text-muted">Imagen actual: <?= htmlspecialchars($datos_casa['imagen_principal']) ?></small>
                                 <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Resto de imagenes * </label>
+                                <input type="file" name="imagenes[]" class="form-control" accept="image/*" multiple>
+                                <?php //if (!empty($datos_casa['imagen_principal'])): ?>
+                                    <!--<small class="text-muted">Imagen actual: ?=<htmlspecialchars($datos_casa['imagen_principal']) ?></small>-->
+                                <?php //endif; ?>
                             </div>
                         </div>
 
@@ -562,9 +587,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </form>
                 </div>
             </div>
-        <?php elseif ($accion === 'subir'): ?>
-            
-
+        
         <?php else: ?>
             <!-- TABLA Y FILTROS (visible solo cuando NO hay accion) -->
             
@@ -613,9 +636,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="mb-3">
                 <a href="?accion=crear" class="btn btn-primary btn-lg">
                     <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Casa
-                </a>
-                <a href="?accion=subir" class="btn btn-secondary btn-lg">
-                    <i class="bi bi-plus-circle-fill"></i> Añadir Imagenes
                 </a>
             </div>
 

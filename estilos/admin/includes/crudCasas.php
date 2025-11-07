@@ -113,13 +113,13 @@ class Casas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
-    public function insertarImagen($id_casa, $url, $descripcion = null) {
+    public function insertarImagen($id_casa, $url) {
         $db = new Connection();
         $conn = $db->getConnection();
 
-        $sql = "INSERT INTO imagenes (id_casa, url, descripcion) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO imagenes (id_casa, url) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iss", $id_casa, $url, $descripcion);
+        $stmt->bind_param("is", $id_casa, $url);
         $stmt->execute();
 
         $db->closeConnection($conn);

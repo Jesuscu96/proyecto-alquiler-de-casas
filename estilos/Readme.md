@@ -5,10 +5,13 @@ Cancelado: 🚫 🔴 ✖️ ❌
 Pendiente: 🕒 🟡 ⌛ 
 
 En casas poner botones de mas informacion con un alert confirm o modal ✅ Mejorar la visualizacion ⌛
+Cambiar todos lo iconos 🟡 ⌛
 
 En casas mejorar la visualizacios del formulario a mas pequeño ⌛
 
 Asegurarme del guardado de las imagenes es correcto en casas.php⌛
+
+Mirar la paginacion en todas los archivos 🟡 ⌛
 
 El contar usuarios hacerlo con un crud ✅
 
@@ -38,7 +41,7 @@ Crear la Paginacion en todos los archivos ⌛
 
 Eleminar los modals de admin.css ⌛
 
-Crear filtros en todas las paginas ⌛
+Crear filtros en todas las paginas  con botones y sea un crud como  casa = casaobj->getbyid o casa = casaobj->getbyidDesc con check de from ⌛
 
 Mejorar la estetica general ⌛
 
