@@ -184,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
             $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
             //$rutaArchivo = $carpeta . uniqid('galeria_') . $nombreArchivo;
-            if (move_uploaded_file($tmpName, $nombreArchivo)) { 
+            if (move_uploaded_file($tmpName, $carpeta . $nombreArchivo)) { 
                 $casaObj->insertarImagen($id_casa, $nombreArchivo);
             }
         }
