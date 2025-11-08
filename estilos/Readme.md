@@ -10,6 +10,8 @@ Cambiar todos lo iconos 🟡 ⌛
 
 En casas mejorar la visualizacios del formulario a mas pequeño y quitar duplicacions 🟡 ⌛
 
+En editar solo muestre provincia y en crear mostar los campos no vacios
+
 Asegurarme del guardado de las imagenes es correcto en casas.php⌛
 
 Mirar la paginacion en todas los archivos 🟡 ⌛
@@ -36,7 +38,7 @@ Crear mas Usuarios y casas en bbdd ⌛
 
 Mejor la estetica de login ⌛
 
-Como insertar imagens de forma dinamica cuando un usuario cree en una casa  quitar de la direccion de los nombres bbdd⌛
+En imagenes quitar de la direccion de los nombres bbdd y eliminarlas 🟡⌛
 
 Crear la Paginacion en todos los archivos ⌛
 
@@ -53,5 +55,11 @@ Cambiar el style de casa.php a al achivo styles.css ⌛
 En casas mirar si son camas o habitaciones que es mejor poner ⌛
 
 Intentar mandar email ⌛
+
+
+ , 'num_aparcamientos' => '', 
+   'num_ascensores' => '', 
+
+
 
 

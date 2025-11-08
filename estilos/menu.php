@@ -4,11 +4,11 @@ require_once "./admin/includes/sessions.php";
 $sesion = new Sessions();
 $paginaActual = basename($_SERVER['PHP_SELF']);
 ?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <nav class="navbar-custom">
   <div class="navbar-container">
     <div class="navbar-brand">
-      <span class="navbar-logo">🏠</span>
+      <span class="navbar-logo"><i class="bi bi-house-door-fill"></i></span>
       <h1 class="navbar-title">ApartaHome</h1>
     </div>
     <ul class="navbar-menu">

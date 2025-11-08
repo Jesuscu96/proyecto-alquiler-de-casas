@@ -1,4 +1,4 @@
-<?php
+  <?php
 session_start();
 require_once "./admin/includes/sessions.php";
 require_once "./admin/includes/crudCasas.php";
@@ -138,7 +138,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             <div class="carousel-inner rounded" style="border-radius: 12px; overflow: hidden;">
               <?php foreach ($imagenes as $idx => $imagen): ?>
                 <div class="carousel-item <?= $idx === 0 ? 'active' : '' ?>">
-                  <img src="<?= htmlspecialchars($imagen['url']) ?>" class="d-block w-100" alt="<?= htmlspecialchars($imagen['descripcion'] ?? 'Imagen de la casa') ?>">
+                  <img src="./imagenes/<?= htmlspecialchars($imagen['url']) ?>" class="d-block w-100" alt="<?= htmlspecialchars($imagen['descripcion'] ?? 'Imagen de la casa') ?>">
                 </div>
               <?php endforeach; ?>
             </div>
@@ -167,7 +167,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             <div class="card text-center" style="border-top: 4px solid #4f46e5;">
               <div class="card-body">
                 <h5 class="card-title" style="color:#4f46e5;"><?= htmlspecialchars($datos_casa['num_hab_individuales'] + $datos_casa['num_hab_familiares']) ?></h5>
-                <p class="card-text small">Camas</p>
+                <p class="card-text small">Habitaciones</p>
               </div>
             </div>
           </div>
@@ -183,7 +183,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             <div class="card text-center" style="border-top: 4px solid #f59e0b;">
               <div class="card-body">
                 <h5 class="card-title" style="color:#f59e0b;"><?= number_format($datos_casa['precio_noche'], 2, ',', '.') ?>€</h5>
-                <p class="card-text small">/noche</p>
+                <p class="card-text small">€/noche</p>
               </div>
             </div>
           </div>
@@ -196,16 +196,63 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
           </div>
           <div class="card-body">
             <div class="amenities-grid">
-              <div class="amenity <?= !$datos_casa['tiene_wifi'] ? 'disabled' : '' ?>">📶 WiFi <?= $datos_casa['tiene_wifi'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_piscina'] ? 'disabled' : '' ?>">🏊 Piscina <?= $datos_casa['tiene_piscina'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_aire_acondicionado'] ? 'disabled' : '' ?>">❄️ A/C <?= $datos_casa['tiene_aire_acondicionado'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_calefaccion'] ? 'disabled' : '' ?>">🔥 Calefacción <?= $datos_casa['tiene_calefaccion'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_barbacoa'] ? 'disabled' : '' ?>">🍖 Barbacoa <?= $datos_casa['tiene_barbacoa'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_chimenea'] ? 'disabled' : '' ?>">🔥 Chimenea <?= $datos_casa['tiene_chimenea'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_jardin'] ? 'disabled' : '' ?>">🌳 Jardín <?= $datos_casa['tiene_jardin'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_patio'] ? 'disabled' : '' ?>">🏡 Patio <?= $datos_casa['tiene_patio'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_sala_cine'] ? 'disabled' : '' ?>">🎬 Sala Cine <?= $datos_casa['tiene_sala_cine'] ? '✓' : '✗' ?></div>
-              <div class="amenity <?= !$datos_casa['tiene_adaptacion_discapacitados'] ? 'disabled' : '' ?>">♿ Adaptado <?= $datos_casa['tiene_adaptacion_discapacitados'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_wifi'] ? 'disabled' : '' ?>"><i class="bi bi-wifi"></i> WiFi <?= $datos_casa['tiene_wifi'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_piscina'] ? 'disabled' : '' ?>"><i class="bi bi-water"></i> Piscina <?= $datos_casa['tiene_piscina'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_aire_acondicionado'] ? 'disabled' : '' ?>"><i class="bi bi-thermometer-snow"></i> A/C <?= $datos_casa['tiene_aire_acondicionado'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_calefaccion'] ? 'disabled' : '' ?>"><i class="bi bi-thermometer-sun"></i></i> Calefacción <?= $datos_casa['tiene_calefaccion'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_barbacoa'] ? 'disabled' : '' ?>"><i class="bi bi-fork-knife"></i> Barbacoa <?= $datos_casa['tiene_barbacoa'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_chimenea'] ? 'disabled' : '' ?>"><i class="bi bi-fire"></i> Chimenea <?= $datos_casa['tiene_chimenea'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_jardin'] ? 'disabled' : '' ?>"><i class="bi bi-tree-fill"></i> Jardín <?= $datos_casa['tiene_jardin'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_patio'] ? 'disabled' : '' ?>"><i class="bi bi-house-door"></i> Patio <?= $datos_casa['tiene_patio'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_sala_cine'] ? 'disabled' : '' ?>"><i class="bi bi-film"></i> Sala Cine <?= $datos_casa['tiene_sala_cine'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_adaptacion_discapacitados'] ? 'disabled' : '' ?>"><i class="bi bi-person-wheelchair"></i> Adaptado <?= $datos_casa['tiene_adaptacion_discapacitados'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_secador_pelo'] ? 'disabled' : '' ?>"><i class="bi bi-wind"></i> Secador Pelo <?= $datos_casa['tiene_secador_pelo'] ? '✓' : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_cocinas'] ? 'disabled' : '' ?>"><i class="bi bi-fork-knife"></i> Coninas <?= $datos_casa['num_cocinas'] ? htmlspecialchars($datos_casa['num_cocinas']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_microondas'] ? 'disabled' : '' ?>"> <!-- No encontre un icono del microondas y use este svg -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-microwave" viewBox="0 0 16 16">
+                <!-- Cuerpo del microondas -->
+                <rect x="1" y="3" width="14" height="10" rx="1" ry="1" stroke="currentColor" fill="none" stroke-width="1"/>
+                <!-- Puerta del microondas -->
+                <rect x="2" y="4" width="10" height="8" rx="0.5" ry="0.5" fill="currentColor" fill-opacity="0.1"/>
+                <!-- Botones -->
+                <circle cx="13" cy="5" r="0.5" fill="currentColor"/>
+                <circle cx="13" cy="7" r="0.5" fill="currentColor"/>
+                <circle cx="13" cy="9" r="0.5" fill="currentColor"/>
+                <!-- Indicador de ondas de calor -->
+                <path d="M3 6c1 1 2-1 3 0s2-1 3 0" stroke="currentColor" fill="none" stroke-width="0.5"/>
+              </svg>
+              Microondas <?= $datos_casa['num_microondas'] ? htmlspecialchars($datos_casa['num_microondas']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_horno'] ? 'disabled' : '' ?>"> <!-- No encontre un icono del horno y use este svg -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-oven" viewBox="0 0 16 16">
+                  <!-- Cuerpo del horno -->
+                  <rect x="1" y="2" width="14" height="12" rx="1" ry="1" stroke="currentColor" fill="none" stroke-width="1"/>
+                  
+                  <!-- Puerta del horno -->
+                  <rect x="2" y="4" width="12" height="8" rx="0.5" ry="0.5" fill="currentColor" fill-opacity="0.1"/>
+                  
+                  <!-- Botones -->
+                  <circle cx="3.5" cy="3" r="0.5" fill="currentColor"/>
+                  <circle cx="5" cy="3" r="0.5" fill="currentColor"/>
+                  <circle cx="6.5" cy="3" r="0.5" fill="currentColor"/>
+                  
+                  <!-- Parrilla interna -->
+                  <line x1="3" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="0.5"/>
+                  <line x1="3" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="0.5"/>
+                  <line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="0.5"/>
+                </svg>
+ 
+              Hornos <?= $datos_casa['num_horno'] ? htmlspecialchars($datos_casa['num_horno']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_nevera'] ? 'disabled' : '' ?>"><i class="bi bi-snow"></i> Neveras <?= $datos_casa['num_nevera'] ? htmlspecialchars($datos_casa['num_nevera']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_congelador'] ? 'disabled' : '' ?>"><i class="bi bi-snow2"></i>Congeladores<?= $datos_casa['num_congelador'] ? htmlspecialchars($datos_casa['num_congelador']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_lavavajillas'] ? 'disabled' : '' ?>"><i class="bi bi-droplet"></i> Lavajillas <?= $datos_casa['num_lavavajillas'] ? htmlspecialchars($datos_casa['num_lavavajillas']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_lavadora'] ? 'disabled' : '' ?>"><i class="bi bi-droplet-half"></i> Lavadoras <?= $datos_casa['num_lavadora'] ? htmlspecialchars($datos_casa['num_lavadora']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_secadora'] ? 'disabled' : '' ?>"><i class="bi bi-fan"></i> Secadoras <?= $datos_casa['num_secadora'] ? htmlspecialchars($datos_casa['num_secadora']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['tiene_banera'] ? 'disabled' : '' ?>"><i class="bi bi-hdmi-fill"></i> Bañeras <?= $datos_casa['tiene_banera'] ? htmlspecialchars($datos_casa['tiene_banera']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_aparcamientos'] ? 'disabled' : '' ?>"><i class="bi bi-car-front"></i> Palzas coche <?= $datos_casa['num_aparcamientos'] ? htmlspecialchars($datos_casa['num_aparcamientos']) : '✗' ?></div>
+              <div class="amenity <?= !$datos_casa['num_ascensores'] ? 'disabled' : '' ?>"><i class="bi bi-arrow-down-up"></i> Ascensores <?= $datos_casa['num_ascensores'] ? htmlspecialchars($datos_casa['num_ascensores']) : '✗' ?></div>
+              
+      
+
             </div>
           </div>
         </div>
