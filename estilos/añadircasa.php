@@ -364,7 +364,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         <?php if (!isset($_GET['id_comunidad'])): ?>
                             <!-- PASO 1: Seleccionar comunidad -->
-                            <h6><i class="bi bi-geo-alt-fill"></i> SELECCIONA COMUNIDAD</h6>
+                            <h6><i class="bi bi-geo-alt-fill"></i>PASO 1 SELECCIONA COMUNIDAD </h6>
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Comunidad Autónoma *</label>
@@ -378,14 +378,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </select>
                                 </div>
                             </div>
-
+                            
+                            <p>"Selecciona una comunidad y se mostrara el siguinte paso para crear la casa"</p>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="añadircasa.php" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
                         <?php elseif (isset($_GET['id_comunidad']) && !isset($_GET['id_provincia'])): ?>
                             <!-- PASO 2: Seleccionar provincia según la comunidad -->
                             <?php 
                                 $id_comunidad = (int)$_GET['id_comunidad']; 
                                 $provincias = $ubicacionObj->getProvinciasByComunidad($id_comunidad); 
                             ?>
-                            <h6><i class="bi bi-geo-alt-fill"></i> SELECCIONA PROVINCIA</h6>
+                            <h6><i class="bi bi-geo-alt-fill"></i>PASO 2 SELECCIONA PROVINCIA</h6>
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Provincia *</label>
@@ -399,19 +406,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </select>
                                 </div>
                             </div>
+                            <p>"Selecciona una Provincia y se mostrara el siguinte paso para crear la casa"</p>
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="añadircasa.php" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
 
-                        <?php elseif (isset($_GET['id_provincia']) && !isset($_GET['id_ciudad'])): ?>
+                        
+
+                        <?php else: ?>
                             <!-- PASO 3: Seleccionar ciudad según la provincia -->
+                            
                             <?php 
                                 $id_comunidad = (int)$_GET['id_comunidad'];
                                 $id_provincia = (int)$_GET['id_provincia']; 
                                 $ciudades = $ubicacionObj->getCiudadesByProvincia($id_provincia); 
+
                             ?>
+
+                            <input type="hidden" name="id_comunidad" value="<?= $id_comunidad ?>">
+                            <input type="hidden" name="id_provincia" value="<?= $id_provincia ?>">
+                            <h6><i class="bi bi-card-text"></i>PASO 3 COMPLETA EL RESTO DEL FORMULARIO</h6></br>
                             <h6><i class="bi bi-geo-alt-fill"></i> SELECCIONA CIUDAD</h6>
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Ciudad *</label>
-                                    <select name="id_ciudad" class="form-select" onchange="location.href='?accion=<?= $accion ?>&id_comunidad=<?= $id_comunidad ?>&id_provincia=<?= $id_provincia ?>&id_ciudad='+this.value;">
+                                    <select name="id_ciudad" class="form-select">
                                         <option value="">Seleccionar...</option>
                                         <?php foreach ($ciudades as $ciudad): ?>
                                             <option value="<?= $ciudad['id_ciudad'] ?>">
@@ -421,21 +442,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     </select>
                                 </div>
                             </div>
-
-                        <?php else: ?>
+                           
                             <!-- PASO 4: Mostrar formulario completo -->
-                            <?php 
-                                $id_comunidad = (int)$_GET['id_comunidad'];
-                                $id_provincia = (int)$_GET['id_provincia']; 
-                                $id_ciudad = (int)$_GET['id_ciudad']; 
-                            ?>
-
-                            <input type="hidden" name="id_comunidad" value="<?= $id_comunidad ?>">
-                            <input type="hidden" name="id_provincia" value="<?= $id_provincia ?>">
-                            <input type="hidden" name="id_ciudad" value="<?= $id_ciudad ?>">
-
-                            <!-- Aquí va el resto de tu formulario original completo -->
-                            <!-- Por ejemplo: nombre, capacidad, precio, habitaciones, etc. -->
+        
                             <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN BÁSICA</h6>
                             <div class="row mb-3">
                                 <div class="col-md-6">
