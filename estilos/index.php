@@ -30,12 +30,12 @@ $casasVip = $casaObj->getCasasVip();
   <?php include("menu.php"); ?>
 
   <!-- Hero / encabezado -->
-  <header class="hero" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 3rem 0;">
+  <header class="hero" >
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-7">
           <h1 class="display-5 fw-bold">Encuentra la casa vacacional perfecta</h1>
-          <p class="lead mb-3" style="color: rgba(255,255,255,0.95);">
+          <p class="lead mb-3 hero-text">
             Busca por provincia, ciudad, capacidad y servicios. Resultados reales y disponibilidad en tiempo real (demo).
           </p>
         </div>
@@ -97,28 +97,28 @@ $casasVip = $casaObj->getCasasVip();
   </header>
 
   <div class="container py-5">
-    <h2 class="mb-4 text-center fw-bold" style="color: #4f46e5; font-size: 2.5rem;">Catálogo de Casas Vacacionales</h2>
+    <h2 class="mb-4 text-center fw-bold section-title">Catálogo de Casas Vacacionales</h2>
 
     <!-- Grupo 1: Viviendas VIP -->
     <section class="section-group mb-5" role="region" aria-labelledby="vip-title">
-      <h2 id="vip-title" class="mb-4 text-center fw-bold" style="color: #4f46e5; font-size: 1.8rem;"><i class="bi bi-gem"></i> Viviendas VIP</h2>
+      <h2 id="vip-title" class="mb-4 text-center fw-bold section-subtitle"><i class="bi bi-gem"></i> Viviendas VIP</h2>
       <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
         <?php foreach ($casasVip as $casa) : ?>
           <div class="col">
-            <div class="card h-100 shadow-sm" style="border-radius: 12px; border: 2px solid #f59e0b; overflow: hidden; transition: transform .3s, box-shadow .3s;">
-              <div style="position: relative; overflow: hidden; height: 250px;">
-                <img src="<?= htmlspecialchars($casa['imagen_principal']) ?>" class="card-img-top" alt="<?= htmlspecialchars($casa['nombre']) ?>" style="height: 100%; object-fit: cover; transition: transform .3s;">
-                <span class="badge bg-warning text-dark" style="position: absolute; top: 10px; right: 10px; font-size: .85rem; font-weight: 600;"><i class="bi bi-gem"></i> VIP</span>
+            <div class="card h-100 shadow-sm card-vip">
+              <div class="image-container">
+                <img src="./imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" class="card-img-top" alt="<?= htmlspecialchars($casa['nombre']) ?>">
+                <span class="badge bg-warning text-dark vip-badge"><i class="bi bi-gem"></i> VIP</span>
               </div>
               <div class="card-body">
                 <h5 class="card-title fw-bold" style="color: #4f46e5;"><?= htmlspecialchars($casa['nombre']) ?></h5>
                 <p class="card-text mb-1"><strong><i class="bi bi-geo"></i> Provincia:</strong> <?= htmlspecialchars($casa['provincia']) ?></p>
                 <p class="card-text mb-1"><strong><i class="bi bi-geo-alt"></i> Ciudad:</strong> <?= htmlspecialchars($casa['ciudad']) ?></p>
                 <p class="card-text mb-1"><i class="bi bi-person-standing"></i> Capacidad: <strong><?= $casa['capacidad'] ?></strong> pers. · <span class="text-success fw-600">✓ Disponible</span></p>
-                <p class="card-text mb-2" style="color: #64748b; font-size: .9rem;"><i class="bi bi-wifi"></i> Wifi · <i class="bi bi-water"></i> Piscina · <i class="bi bi-tree-fill"></i> Jardín · <i class="bi bi-car-front"></i> Parking</p>
+                <p class="card-text mb-2 amenities"><i class="bi bi-wifi"></i> Wifi · <i class="bi bi-water"></i> Piscina · <i class="bi bi-tree-fill"></i> Jardín · <i class="bi bi-car-front"></i> Parking</p>
                 <p class="card-text mb-3">
-                  <strong style="font-size: 1.4rem; color: #f59e0b;"><?= number_format($casa['precio_noche'], 2, ',', '.') ?>€</strong>
-                  <span style="color:#64748b;">/noche</span>
+                  <strong class="card-price card-price-vip"><?= number_format($casa['precio_noche'], 2, ',', '.') ?>€</strong>
+                  <span class="price-suffix">/noche</span>
                 </p>
                 <a href="casa.php?id=<?= $casa['id_casa']; ?>" class="btn btn-primary w-100 fw-600">Ver detalles →</a>
               </div>
@@ -134,19 +134,19 @@ $casasVip = $casaObj->getCasasVip();
       <div class="row row-cols-1 row-cols-md-3 g-4">
         <?php foreach ($casas as $casa) : ?>
           <div class="col">
-            <div class="card h-100 shadow-sm" style="border-radius: 12px; overflow: hidden; transition: all .3s; border-top: 4px solid #4f46e5;">
-              <div style="position: relative; overflow: hidden; height: 250px;">
-                <img src="<?= htmlspecialchars($casa['imagen_principal']) ?>" class="card-img-top" alt="<?= htmlspecialchars($casa['nombre']) ?>" style="height: 100%; object-fit: cover; transition: transform .3s;">
+            <div class="card h-100 shadow-sm card-regular">
+              <div class="image-container">
+                <img src="./imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" class="card-img-top" alt="<?= htmlspecialchars($casa['nombre']) ?>">
               </div>
               <div class="card-body">
                 <h5 class="card-title fw-bold" style="color: #4f46e5;"><?= htmlspecialchars($casa['nombre']) ?></h5>
                 <p class="card-text mb-1"><strong><i class="bi bi-geo"></i> Provincia:</strong> <?= htmlspecialchars($casa['provincia']) ?></p>
-                <p class="card-text mb-1"><strong><i class="bi bi-geo-alt"> Ciudad:</strong> <?= htmlspecialchars($casa['ciudad']) ?></p>
-                <p class="card-text mb-1"><i class="bi bi-person-standing"> Capacidad: <strong><?= $casa['capacidad'] ?></strong> pers. · <span class="text-success fw-600">✓ Disponible</span></p>
-                <p class="card-text mb-2" style="color: #64748b; font-size: .9rem;"><i class="bi bi-wifi"></i> Wifi · <i class="bi bi-water"> Piscina · <i class="bi bi-tree-fill"></i> Jardín · <i class="bi bi-car-front"></i> Parking</p>
+                <p class="card-text mb-1"><strong><i class="bi bi-geo-alt"></i> Ciudad:</strong> <?= htmlspecialchars($casa['ciudad']) ?></p>
+                <p class="card-text mb-1"><i class="bi bi-person-standing"></i> Capacidad: <strong><?= $casa['capacidad'] ?></strong> pers. · <span class="text-success fw-600">✓ Disponible</span></p>
+                <p class="card-text mb-2 amenities"><i class="bi bi-wifi"></i> Wifi · <i class="bi bi-water"></i> Piscina · <i class="bi bi-tree-fill"></i> Jardín · <i class="bi bi-car-front"></i> Parking</p>
                 <p class="card-text mb-3">
-                  <strong style="font-size: 1.4rem; color: #4f46e5;"><?= number_format($casa['precio_noche'], 2, ',', '.') ?>€</strong>
-                  <span style="color:#64748b;">/noche</span>
+                  <strong class="card-price card-price-normal"><?= number_format($casa['precio_noche'], 2, ',', '.') ?>€</strong>
+                  <span class="price-suffix">/noche</span>
                 </p>
                 <a href="casa.php?id=<?= $casa['id_casa']; ?>" class="btn btn-primary w-100 fw-600">Ver detalles →</a>
               </div>
@@ -160,9 +160,5 @@ $casasVip = $casaObj->getCasasVip();
   <?php include("footer.php"); ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important; }
-    .card:hover img { transform: scale(1.05); }
-  </style>
 </body>
 </html>

@@ -1,11 +1,11 @@
 
 <?php
-require_once "./admin/includes/crudCasas.php";
-require_once "./admin/includes/crudUbicacion.php";
-require_once "./admin/includes/crudUsuarios.php";
-require_once "./admin/includes/sessions.php";
+require_once "./includes/crudCasas.php";
+require_once "./includes/crudUbicacion.php";
+require_once "./includes/crudUsuarios.php";
+require_once "./includes/sessions.php";
 $sesion = new Sessions();
-if (!$sesion->comprobarSesion()) {
+if (!$sesion->comprobarSesion() || !in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) {
     header("Location: ../login.php");
     exit();
 }
@@ -15,13 +15,13 @@ $ubicacionObj = new Ubicacion();
 $usuariosObj = new Usuarios();
 
 // Obtener datos
-$id_usuario = $_SESSION['usuario']['id_usuario'];
 
-$todasLasCasas = $casaObj->getCasasByIdUsuario($id_usuario);
+
+$todasLasCasas = $casaObj->getAll();
 $comunidades = $ubicacionObj->getAllComunidades();
 $provincias = $ubicacionObj->getAllProvincias();
 $ciudades = $ubicacionObj->getAllCiudades();
-
+$propietarios = $usuariosObj->getAll();
 
 // Parámetros de acción
 $accion = $_GET['accion'] ?? null;
@@ -105,19 +105,27 @@ if ($accion === "editar" && $id) {
     $datos_casa = $casaObj->getCasaById($id);
 }
 
+/* Menejo de archivos
+
+file_exists('imagenes')   true si existe la carpeta 'imagenes' (archivo o carpeta)
+is_file('imagenes')         false si 'imagenes' es una carpeta
+is_dir('imagenes')        true si es una carpeta*/
+
+
+
 // Procesar eliminación
 if ($accion === 'eliminar' && $id) {
     $datos_casa = $casaObj->getCasaById($id);
     $imagenes = $casaObj->getImagenesByCasa($id);
     //imagen principal
     if($datos_casa) {
-        $rutaBorrado = "./imagenes/" . $datos_casa['imagen_principal'];
+        $rutaBorrado = "../imagenes/" . $datos_casa['imagen_principal'];
         if (file_exists($rutaBorrado)) {
             unlink($rutaBorrado);
         }
     }
 
-    $rutaBorrado = "./imagenes/" . $datos_casa['imagen_principal'];
+    $rutaBorrado = "../imagenes/" . $datos_casa['imagen_principal'];
     if (file_exists($rutaBorrado)) {
         unlink($rutaBorrado);
     }
@@ -132,7 +140,7 @@ if ($accion === 'eliminar' && $id) {
     }
     $casaObj->eliminarImagenes($id);
     $casaObj->eliminarCasa($id);
-    header("Location: añadircasa.php");
+    header("Location: casas.php");
     exit();
 }
 
@@ -159,7 +167,7 @@ $erroresNum_cocinas = '';
 $erroresNum_nevera = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_propietario = $id_usuario;
+    $id_propietario =  $_POST['id_propietario'] ?? '';;
     $id_comunidad = $_POST['id_comunidad'] ?? ($_GET['id_comunidad'] ?? '');
     $id_provincia = $_POST['id_provincia'] ?? ($_GET['id_provincia'] ?? '');
     $id_ciudad = $_POST['id_ciudad'] ?? ($_GET['id_ciudad'] ?? '');
@@ -195,12 +203,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Manejo de imagen principal
     $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
     if (!empty($_FILES['imagen_principal']['name'])) {
-        $carpeta = './imagenes/';
+        $carpeta = '../imagenes/';
         if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
         $nombreArchivo = basename($_FILES['imagen_principal']['name']);
         $rutaArchivo = $carpeta . $nombreArchivo;
         if (move_uploaded_file($_FILES['imagen_principal']['tmp_name'], $rutaArchivo)) {
-            $imagen_guardada = $rutaArchivo;
+            $imagen_guardada = $nombreArchivo;
         } else {
             $errores['imagen'] = "Error al subir la imagen.";
         }
@@ -298,11 +306,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 );
             }
             if (!empty($_FILES['imagenes']['name'][0])) {
-                $carpeta = './imagenes/';
-                if (!is_dir($carpeta)) mkdir($carpeta, 0755, true); // file_exist pude dar errores
+                $carpeta = '../imagenes/';
+                if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+
                 // determinar id real de la casa: si creamos, $id_casa viene de insertarCasa(); si editamos, usar $id
                 $targetId = ($accion === 'crear') ? ($id_casa ?? null) : ($id ?? null);
-
                 foreach ($_FILES['imagenes']['tmp_name'] as $index => $tmpName) {
                     if ($_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
                         $nombreArchivo = basename($_FILES['imagenes']['name'][$index]);
@@ -313,7 +321,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                 }
             }
-            header("Location: añadircasa.php");
+            header("Location: casas.php");
             exit();
         } catch (Exception $e) {
             $errores['general'] = "Error: " . $e->getMessage();
@@ -329,9 +337,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Casas Vacacionales</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="./admin/assets/css/admin.css">
-    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/admin.css">
 </head>
 <body>
     <!-- Navbar -->
@@ -403,7 +410,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <p>"Selecciona una comunidad y se mostrara el siguinte paso para crear la casa"</p>
                             
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="añadircasa.php" class="btn btn-secondary">
+                                <a href="casas.php" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancelar
                                 </a>
                             </div>
@@ -429,7 +436,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <p>"Selecciona una Provincia y se mostrara el siguinte paso para crear la casa"</p>
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="añadircasa.php" class="btn btn-secondary">
+                                <a href="casas.php" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancelar
                                 </a>
                             </div>
@@ -477,6 +484,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         
                             <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN BÁSICA</h6>
                             <div class="row mb-3">
+                                <div class="col-md-6">
+                                <label class="form-label">Propietario *</label>
+                                <select name="id_propietario" class="form-select">
+                                    <option value="">Seleccionar...</option>
+                                    <?php foreach ($propietarios as $prop): ?>
+                                        <option value="<?= $prop['id_usuario'] ?>" <?= $datos_casa['id_propietario'] == $prop['id_usuario'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($prop['username']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if (!empty($erroresId_propietario)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresId_propietario ?></div>
+                                <?php endif; ?>
+                            </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Nombre de la Casa *</label>
                                     <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($datos_casa['nombre']) ?>">
@@ -689,7 +710,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             <!-- BOTONES -->
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="añadircasa.php" class="btn btn-secondary">
+                                <a href="casas.php" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancelar
                                 </a>
                                 <button type="submit" class="btn btn-primary">
@@ -779,7 +800,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <tr>
                                     <td>
                                         <?php if (!empty($casa['imagen_principal'])): ?>
-                                            <img src="./imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" alt="Casa" width="50" height="50" style="object-fit: cover;">
+                                            <img src="../imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" alt="Casa" width="50" height="50" style="object-fit: cover;">
                                         <?php else: ?>
                                             <span class="text-muted">Sin imagen</span>
                                         <?php endif; ?>

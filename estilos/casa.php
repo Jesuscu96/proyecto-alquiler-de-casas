@@ -150,7 +150,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             </button>
           </div>
         <?php else: ?>
-          <img src="<?= $imagenPrincipal ?>" class="img-fluid rounded mb-4" alt="Imagen principal" />
+          <img src="./imagenes/<?= $imagenPrincipal ?>" class="img-fluid rounded mb-4" alt="Imagen principal" />
         <?php endif; ?>
 
         <!-- Info rápida -->

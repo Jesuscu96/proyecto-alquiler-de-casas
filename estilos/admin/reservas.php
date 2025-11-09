@@ -2,7 +2,7 @@
 require_once "./includes/crudReservas.php";
 require_once "./includes/sessions.php";
 $sesion = new Sessions();
-if (!$sesion->comprobarSesion()) {
+if (!$sesion->comprobarSesion() || !in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) {
     header("Location: ../login.php");
     exit();
 }

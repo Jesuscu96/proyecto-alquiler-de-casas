@@ -4,15 +4,15 @@ Cancelado: 🚫 🔴 ✖️ ❌
 
 Pendiente: 🕒 🟡 ⌛ 
 
-En casas poner botones de mas informacion con un alert confirm o modal ✅ Mejorar la visualizacion ⌛
+En casas poner botones de mas informacion con un alert confirm o modal ✅ Mejorar la visualizacion y no esta toda la informacion ⌛🟡
 
 Cambiar todos lo iconos 🟡 ⌛
 
 En casas mejorar la visualizacios del formulario a mas pequeño y quitar duplicacions 🟡 ⌛
 
-En editar solo muestre provincia y en crear mostar los campos no vacios
+En editar solo muestre provincia ✅ y en crear mostar los campos no vacios  si salta un error ⌛
 
-Asegurarme del guardado de las imagenes es correcto en casas.php⌛
+Asegurarme del guardado de las imagenes es correcto en casas.php✅
 
 Mirar la paginacion en todas los archivos 🟡 ⌛
 
@@ -32,13 +32,13 @@ Crear reservas.php ✅ y revisar reservas.php crudReserevas.php ⌛
 
 Dar formato a las fechas en casa.php y reservas.php ✅
 
-En casa.php para **RESERVAR** cambiar el **required** por if else de errores
+En casa.php para **RESERVAR** cambiar el **required** por if else de errores 🟡 ⌛
 
 Crear mas Usuarios y casas en bbdd ⌛
 
 Mejor la estetica de login ⌛
 
-En imagenes quitar de la direccion de los nombres bbdd y eliminarlas 🟡⌛
+En imagenes quitar de la direccion de los nombres bbdd y eliminarlas ✅
 
 Crear la Paginacion en todos los archivos ⌛
 
@@ -48,17 +48,15 @@ Crear filtros en todas las paginas  con botones y sea un crud como  casa = casao
 
 Mejorar la estetica general ⌛
 
-Que un usuario Cliente cree una casa ⌛
+Que un usuario Cliente cree una casa ✅
 
 Cambiar el style de casa.php a al achivo styles.css ⌛
 
-En casas mirar si son camas o habitaciones que es mejor poner ⌛
+En casas mirar si son camas o habitaciones que es mejor poner ✅
 
 Intentar mandar email ⌛
 
 
- , 'num_aparcamientos' => '', 
-   'num_ascensores' => '', 
 
 
 

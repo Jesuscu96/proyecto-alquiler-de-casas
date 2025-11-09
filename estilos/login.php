@@ -45,7 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="main-container">
     <div class="form-container">
       <div class="form-header">
-        <div class="form-logo">🔐</div>
+        <div class="form-logo" ">
+          <i class="bi bi-person-fill-lock bi-secondary" ></i>
+        </div>
         <h1 class="form-title">Iniciar sesión</h1>
         <p class="form-subtitle">Accede a tu cuenta de ApartaHome</p>
       </div>

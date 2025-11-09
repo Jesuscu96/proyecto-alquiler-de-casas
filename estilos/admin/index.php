@@ -4,9 +4,9 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require_once "./includes/sessions.php";
 $sesion = new Sessions();
-if (!$sesion->comprobarSesion()) {
-    header("Location: ../login.php");
-    exit();
+if (!$sesion->comprobarSesion() || !in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) {
+  header("Location: ../login.php");
+  exit();
 }
 $usuario = $_SESSION['usuario']['username'];
 require_once "./includes/crudUsuarios.php";
