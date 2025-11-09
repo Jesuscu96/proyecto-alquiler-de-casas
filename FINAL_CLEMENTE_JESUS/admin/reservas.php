@@ -37,7 +37,7 @@ $reservas_pagina = array_slice($reservas, $inicio, $por_pagina);
 // Datos por defecto del formulario
 $datos_reserva = [
     'id_usuario' => '',
-    'id_reserva' => '',
+    'id_casa' => '',
     'fecha_inicio' => '',
     'fecha_fin' => '',
     'total_precio' => '',
@@ -65,7 +65,7 @@ $erroresFecha_fin = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_usuario = trim($_POST['id_usuario'] ?? '');
-    $id_reserva = trim($_POST['id_reserva'] ?? '');
+    $id_casa = trim($_POST['id_casa'] ?? '');
     $fecha_inicio = trim($_POST['fecha_inicio'] ?? '');
     $fecha_fin = trim($_POST['fecha_fin'] ?? '');
     $total_precio = (float)($_POST['total_precio'] ?? '');
@@ -77,13 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validaciones
     if ($accion === 'crear' || $accion === 'editar') {
         if (empty($id_usuario)) $errores['id_usuario'] = "El nombre del cliente no puede estar vacío.";
-        if (empty($id_reserva)) $errores['id_reserva'] = "El de la reserva no puede estar vacío.";
+        if (empty($id_casa)) $errores['id_casa'] = "El de la reserva no puede estar vacío.";
         if (empty($fecha_inicio)) $errores['fecha_inicio'] = "La fecha de inicio no puede estar vacia.";
         if (empty($fecha_fin)) $errores['fecha_fin'] = "La fecha del fin no puede estar vacia.";
         if (empty($total_precio)) $errores['total_precio'] = "El total_precio no puede estar vacío.";
     }
     if (!empty($erroresId_usuario)) $errores[] = $erroresId_usuario;
-    if (!empty($erroresId_reserva)) $errores[] = $erroresId_reserva;
+    if (!empty($erroresId_casa)) $errores[] = $erroresId_casa;
     if (!empty($erroresFecha_inicio)) $errores[] = $erroresFecha_inicio;
     if (!empty($erroresFecha_fin)) $errores[] = $erroresFecha_fin;
     if (!empty($erroresTotal_precio)) $errores[] = $erroresTotal_precio;
@@ -94,13 +94,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errores)) {
         try {
             if ($accion === 'crear') {
-                $reservaObj->insertarReserva(
-                    $id_usuario, $id_reserva, $fecha_inicio, $fecha_fin,
-                    $total_precio, $estado);
+                $reservaObj->insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado);
             } elseif ($accion === 'editar' && $id) {
-                $reservaObj->actualizarReserva(
-                    $id, $id_usuario, $id_reserva, $fecha_inicio, $fecha_fin,
-                    $total_precio, $estado);
+                $reservaObj->actualizarReserva($id, $id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado);
             }
             header("Location: reservas.php");
             exit();
@@ -159,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                         <div class="alert alert-danger">
-                            <strong>⚠️ Errores encontrados:</strong>
+                            <strong><i class="bi bi-exclamation-triangle-fill"></i> Errores encontrados:</strong>
                             <ul class="mb-0">
                                 <?php foreach ($errores as $error): ?>
                                     <li><?= htmlspecialchars($error) ?></li>
@@ -174,17 +170,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN BÁSICA</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Cliente *</label>
-                                <input type="text" name="id_usuario" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_usuario']) ?>">
+                                <label class="form-label">ID Cliente *</label>
+                                <input type="text" name="id_usuario" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_usuario']) ?>" >
                                 <?php if (isset($erroresId_usuario) && !empty($erroresId_usuario)): ?>
                                     <div class="text-danger small mt-1"><?= $erroresId_usuario ?></div>
                                 <?php endif; ?> 
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label"> Nombre de la reservas*</label>
-                                <input type="text" name="id_reserva" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_reserva']) ?>">
-                                <?php if (isset($erroresId_reserva) && !empty($erroresId_reserva)): ?>
-                                    <div class="text-danger small mt-1"><?= $erroresId_reserva ?></div>
+                                <label class="form-label"> ID Casa*</label>
+                                <input type="text" name="id_casa" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_casa']) ?>" >
+                                <?php if (isset($erroresId_reserva) && !empty($erroresId_casa)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresId_casa ?></div>
                                 <?php endif; ?>
                                 
                             </div>
@@ -193,8 +189,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <input type="text" name="total_precio" class="form-control" value="<?= htmlspecialchars($datos_reserva['total_precio']) ?>">
                                 <?php if (isset($erroresTotal_precio) && !empty($erroresTotal_precio)): ?>
                                     <div class="text-danger small mt-1"><?= $erroresTotal_precio ?></div>
-                                <?php endif; ?>
-                                
+                                <?php endif; ?>                                
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Estado *</label>
+                                <select name="estado" class="form-select">
+                                    <option value="" <?= empty($datos_reserva['estado']) ? 'selected' : '' ?> disabled hidden>Seleccionar...</option>
+                                    <option value="confirmada">Confirmada</option>
+                                    <option value="cancelada">Cancelada</option>
+                                    
+                                </select>
                             </div>
                         </div>                   
 

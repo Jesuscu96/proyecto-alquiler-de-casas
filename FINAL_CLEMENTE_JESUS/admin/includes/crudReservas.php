@@ -97,7 +97,7 @@ class Reservas {
         $db = new Connection();
         $conn = $db->getConnection();
 
-        // 1️⃣ Comprobar si hay conflicto con otras reservas confirmadas
+        // 1️ Comprobar si hay conflicto con otras reservas confirmadas
         $sql_conflicto = "SELECT COUNT(*) AS conflictos
                         FROM reservas
                         WHERE id_casa = ?
@@ -116,10 +116,10 @@ class Reservas {
 
         if ($conflictos > 0) {
             $db->closeConnection($conn);
-            return false; // ⚠️ Hay conflicto de fechas
+            return false; //  Hay conflicto de fechas
         }
 
-        // 2️⃣ Si no hay conflicto, actualizar la reserva
+        // 2️ Si no hay conflicto, actualizar la reserva
         $sql = "UPDATE reservas 
                 SET id_usuario = ?, 
                     id_casa = ?, 
@@ -135,24 +135,22 @@ class Reservas {
 
         $db->closeConnection($conn);
 
-        return true; // ✅ Actualización exitosa
+        return true; //  Actualización exitosa
     }
 
-    /* public function actualizarReserva($id_reserva, $id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado) {
+    /* public function actualizarReserva($id_reserva, $fecha_inicio, $fecha_fin, $total_precio, $estado) {
         $db = new Connection();
         $conn = $db->getConnection();
 
         $sql = "UPDATE reservas 
-                SET id_usuario = ?, 
-                    id_casa = ?, 
-                    fecha_inicio = ?, 
+                SET fecha_inicio = ?, 
                     fecha_fin = ?, 
                     total_precio = ?, 
                     estado = ?
                 WHERE id_reserva = ?";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iissdsi", $id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado, $id_reserva);
+        $stmt->bind_param("ssdsi",  $fecha_inicio, $fecha_fin, $total_precio, $estado, $id_reserva);
 
         $stmt->execute();
 
@@ -175,28 +173,6 @@ class Reservas {
 
         $db->closeConnection($conn);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    }
-    public function hayConflicto($id_casa, $fecha_inicio, $fecha_fin) {
-        $db = new Connection();
-        $conn = $db->getConnection();
-
-        $sql = "SELECT COUNT(*) AS conflictos
-                FROM reservas
-                WHERE id_casa = ?
-                AND estado = 'confirmada'
-                AND (
-                        (? BETWEEN fecha_inicio AND fecha_fin)
-                    OR (? BETWEEN fecha_inicio AND fecha_fin)
-                    OR (fecha_inicio BETWEEN ? AND ?)
-                    )";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issss", $id_casa, $fecha_inicio, $fecha_fin, $fecha_inicio, $fecha_fin);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-
-        $db->closeConnection($conn);
-        return $result['conflictos'] > 0;
     }
     public function cancelarReserva($id_reserva, $id_usuario) {
         $db = new Connection();
