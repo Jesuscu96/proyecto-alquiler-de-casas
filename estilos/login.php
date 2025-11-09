@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Iniciar sesión - ApartaHome</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/styles.css?v=<?php echo time(); ?>" />
 </head>
 <body>
   <?php include("menu.php"); ?>
@@ -45,8 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="main-container">
     <div class="form-container">
       <div class="form-header">
-        <div class="form-logo" ">
-          <i class="bi bi-person-fill-lock bi-secondary" ></i>
+        <div class="form-logo" style="color: var(--secondary);">
+          <i class="bi bi-person-fill-lock bi-secondary" aria-hidden="true"></i>
         </div>
         <h1 class="form-title">Iniciar sesión</h1>
         <p class="form-subtitle">Accede a tu cuenta de ApartaHome</p>

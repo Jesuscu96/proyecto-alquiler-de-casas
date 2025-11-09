@@ -1,18 +1,30 @@
 :root {
-  --primary: #318dc7;
+  /* Colores principales de la aplicación */
+  --primary: #4f46e5;  /* Color principal para títulos y elementos destacados */
   --primary-dark: #2b0090;
-  --primary-light: rgba(79,209,197,0.9);
-  --secondary: #f59e0b;
+  --primary-light: #6366f1;
+  
+  /* Colores secundarios y de acento */
+  --secondary: #f59e0b;  /* Color para elementos VIP y destacados */
   --secondary-light: #fbbf24;
   --tertiary: #10b981;
   --accent: #ec4899;
+  
+  /* Colores de fondo y texto */
   --bg-light: #f8fafc;
   --bg-dark: #1e293b;
   --border: #cbd5e1;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
+  
+  /* Colores de estado */
   --error: #ef4444;
   --success: #10b981;
+  
+  /* Colores específicos del menú */
+  --menu-primary: #318dc7;  /* Color específico para el menú */
+  --menu-gradient-start: rgba(11,84,130,0.9);
+  --menu-gradient-end: rgba(79,209,197,0.9);
 }
 
 /* Reset */
@@ -43,7 +55,9 @@ body {
 /* Navbar */
 
 .navbar-custom {
-  background: linear-gradient(135deg, rgba(11,84,130,0.9) 0%, rgba(79,209,197,0.9) 100%), radial-gradient(circle at 10% 20%, rgba(255,255,255,0.03), transparent 15%), radial-gradient(circle at 90% 80%, rgba(0,0,0,0.02), transparent 15%);
+  background: linear-gradient(135deg, var(--menu-gradient-start) 0%, var(--menu-gradient-end) 100%), 
+              radial-gradient(circle at 10% 20%, rgba(255,255,255,0.03), transparent 15%), 
+              radial-gradient(circle at 90% 80%, rgba(0,0,0,0.02), transparent 15%);
   padding: 1rem 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   position: sticky; top: 0; z-index: 1000;
@@ -123,13 +137,141 @@ body {
 .btn-block { width: 100%; }
 
 /* Cards */
-.card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: all .3s; }
+.card { 
+    background: #fff; 
+    border: 1px solid var(--border); 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0,0,0,.06); 
+    transition: all .3s; 
+}
+
 .card:hover { 
     transform: translateY(-5px); 
     box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important; 
 }
+
 .card:hover img { 
     transform: scale(1.05); 
+}
+
+/* Custom Card Styles */
+.card .card-img-top {
+    height: 100%; 
+    object-fit: cover; 
+    transition: transform .3s;
+}
+
+.card .image-container {
+    position: relative; 
+    overflow: hidden; 
+    height: 250px;
+}
+
+.card .vip-badge {
+    position: absolute; 
+    top: 10px; 
+    right: 10px; 
+    font-size: .85rem; 
+    font-weight: 600;
+}
+
+/* Typography Styles */
+.section-title {
+    color: var(--primary-dark); 
+    font-size: 2.5rem;
+}
+
+.section-subtitle {
+    color: var(--primary-dark); 
+    font-size: 1.8rem;
+}
+
+.card-title {
+    color: var(--primary-dark);
+    font-weight: bold;
+}
+
+.card-price {
+    font-size: 1.4rem;
+}
+
+.card-price-vip {
+    color: #f59e0b;
+}
+
+.card-price-normal {
+    color: var(--primary-dark);
+}
+
+.price-suffix {
+    color: #64748b;
+}
+
+/* VIP Card Styles */
+.card-vip {
+    border: 2px solid #f59e0b;
+}
+
+/* Regular Card Styles */
+.card-regular {
+    border-top: 4px solid var(--primary-dark);
+}
+
+.amenities {
+    color: #64748b; 
+    font-size: .9rem;
+}
+
+.hero-text {
+    color: rgba(255,255,255,0.95);
+}
+
+/* Casa Page Styles */
+.hero-casa { 
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #6366f1 100%); 
+    color: #fff; 
+    padding: 3rem 0; 
+}
+
+.carousel-inner img { 
+    height: 400px; 
+    object-fit: cover; 
+}
+
+.amenities-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 1rem; 
+    margin: 1.5rem 0; 
+}
+
+.amenity { 
+    padding: 1rem; 
+    background: #f8fafc; 
+    border-radius: 8px; 
+    text-align: center; 
+    border-left: 4px solid var(--primary-dark); 
+}
+
+.amenity.disabled { 
+    opacity: .5; 
+    border-left-color: #cbd5e1; 
+}
+
+.form-reserva { 
+    background: #fff; 
+    padding: 2rem; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,.08); 
+}
+
+.calendar-info { 
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); 
+    color: #fff; 
+    padding: 1.5rem; 
+    border-radius: 8px; 
+    margin: 1rem 0; 
 }
 .card-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: #fff; padding: 1.5rem; }
 .card-body { padding: 1.5rem; }
@@ -158,12 +300,12 @@ body {
 
 /* Typography Styles */
 .section-title {
-    color: #4f46e5; 
+    color: var(--primary-dark); 
     font-size: 2.5rem;
 }
 
 .section-subtitle {
-    color: #4f46e5; 
+    color: var(--primary-dark); 
     font-size: 1.8rem;
 }
 
@@ -176,7 +318,7 @@ body {
 }
 
 .card-price-normal {
-    color: #4f46e5;
+    color: var(--primary-dark);
 }
 
 .price-suffix {
@@ -190,7 +332,7 @@ body {
 
 /* Regular Card Styles */
 .card-regular {
-    border-top: 4px solid #4f46e5;
+    border-top: 4px solid var(--primary-dark);
 }
 
 .amenities {
@@ -204,6 +346,69 @@ body {
 
 
 
+
+/* Filter Card Styles */
+.filters-card {
+    border-radius: 12px;
+}
+
+/* Card Title Styles */
+.card-title {
+    color: var(--primary-dark);
+    font-weight: bold;
+}
+
+/* Utility Classes */
+.fw-600 {
+    font-weight: 600;
+}
+
+/* Casa Detail Page Styles */
+.card-info-basic {
+    border-top: 4px solid var(--primary);
+}
+
+.card-info-basic .card-title {
+    color: var(--primary);
+}
+
+.whitespace-pre {
+    white-space: pre-line;
+}
+.carousel-inner.rounded {
+    border-radius: 12px; 
+    overflow: hidden;
+}
+
+.card-info {
+    border-top: 4px solid var(--primary);
+}
+
+.card-info-price {
+    border-top: 4px solid var(--secondary);
+}
+
+.card-info .card-title {
+    color: var(--primary);
+}
+
+.card-info-price .card-title {
+    color: var(--secondary);
+}
+
+.reserva-heading {
+    color: var(--primary);
+}
+
+.sticky-sidebar {
+    top: 20px;
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

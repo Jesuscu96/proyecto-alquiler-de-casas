@@ -107,16 +107,8 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= htmlspecialchars($datos_casa['nombre']) ?> - ApartaHome</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/styles.css" />
-  <style>
-    .hero-casa { background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: #fff; padding: 3rem 0; }
-    .carousel-inner img { height: 400px; object-fit: cover; }
-    .amenities-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-    .amenity { padding: 1rem; background: #f8fafc; border-radius: 8px; text-align: center; border-left: 4px solid #4f46e5; }
-    .amenity.disabled { opacity: .5; border-left-color: #cbd5e1; }
-    .form-reserva { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-    .calendar-info { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: #fff; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; }
-  </style>
+  <link rel="stylesheet" href="./css/styles.css?v=<?php echo time(); ?>" />
+
 </head>
 <body>
   <?php include("menu.php"); ?>
@@ -135,7 +127,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
       <div class="col-lg-8">
         <?php if (!empty($imagenes)): ?>
           <div id="carouselCasa" class="carousel slide mb-4" data-bs-ride="carousel">
-            <div class="carousel-inner rounded" style="border-radius: 12px; overflow: hidden;">
+            <div class="carousel-inner rounded">
               <?php foreach ($imagenes as $idx => $imagen): ?>
                 <div class="carousel-item <?= $idx === 0 ? 'active' : '' ?>">
                   <img src="./imagenes/<?= htmlspecialchars($imagen['url']) ?>" class="d-block w-100" alt="<?= htmlspecialchars($imagen['descripcion'] ?? 'Imagen de la casa') ?>">
@@ -156,33 +148,33 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
         <!-- Info rápida -->
         <div class="row g-3 mb-4">
           <div class="col-6 col-md-3">
-            <div class="card text-center" style="border-top: 4px solid #4f46e5;">
+            <div class="card text-center card-info-basic">
               <div class="card-body">
-                <h5 class="card-title" style="color:#4f46e5;"><?= htmlspecialchars($datos_casa['capacidad']) ?></h5>
+                <h5 class="card-title"><?= htmlspecialchars($datos_casa['capacidad']) ?></h5>
                 <p class="card-text small">Personas</p>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="card text-center" style="border-top: 4px solid #4f46e5;">
+            <div class="card text-center card-info-basic">
               <div class="card-body">
-                <h5 class="card-title" style="color:#4f46e5;"><?= htmlspecialchars($datos_casa['num_hab_individuales'] + $datos_casa['num_hab_familiares']) ?></h5>
+                <h5 class="card-title"><?= htmlspecialchars($datos_casa['num_hab_individuales'] + $datos_casa['num_hab_familiares']) ?></h5>
                 <p class="card-text small">Habitaciones</p>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="card text-center" style="border-top: 4px solid #4f46e5;">
+            <div class="card text-center card-info-basic">
               <div class="card-body">
-                <h5 class="card-title" style="color:#4f46e5;"><?= htmlspecialchars($datos_casa['num_banos']) ?></h5>
+                <h5 class="card-title"><?= htmlspecialchars($datos_casa['num_banos']) ?></h5>
                 <p class="card-text small">Baños</p>
               </div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="card text-center" style="border-top: 4px solid #f59e0b;">
+            <div class="card text-center card-info-price">
               <div class="card-body">
-                <h5 class="card-title" style="color:#f59e0b;"><?= number_format($datos_casa['precio_noche'], 2, ',', '.') ?>€</h5>
+                <h5 class="card-title"><?= number_format($datos_casa['precio_noche'], 2, ',', '.') ?>€</h5>
                 <p class="card-text small">€/noche</p>
               </div>
             </div>
@@ -191,7 +183,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
 
         <!-- Amenidades -->
         <div class="card mb-4">
-          <div class="card-header" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: #fff;">
+          <div class="card-header gradient-primary">
             <h5 class="mb-0">Servicios y Amenidades</h5>
           </div>
           <div class="card-body">
@@ -260,14 +252,14 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
 
       <!-- Sidebar reserva -->
       <div class="col-lg-4">
-        <div class="form-reserva sticky-lg-top" style="top: 20px;">
-          <h3 class="mb-3" style="color:#4f46e5;">Realizar Reserva</h3>
+        <div class="form-reserva sticky-lg-top sticky-sidebar">
+          <h3 class="mb-3 reserva-heading">Realizar Reserva</h3>
 
           <?php if ($exitoReserva): ?>
             <div class="alert alert-success"><?= $exitoReserva ?></div>
           <?php endif; ?>
           <?php if ($errorReserva): ?>
-            <div class="alert alert-error" style="white-space: pre-line;"><?= $errorReserva ?></div>
+            <div class="alert alert-error whitespace-pre"><?= $errorReserva ?></div>
           <?php endif; ?>
 
           <?php if ($sesion->comprobarSesion()): ?>
@@ -300,7 +292,7 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
 
     <!-- Disponibilidad -->
     <div class="card mt-5">
-      <div class="card-header" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: #fff;">
+      <div class="card-header gradient-primary">
         <h5 class="mb-0">Disponibilidad</h5>
       </div>
       <div class="card-body">

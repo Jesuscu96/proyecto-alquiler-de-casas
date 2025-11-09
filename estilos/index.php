@@ -24,7 +24,7 @@ $casasVip = $casaObj->getCasasVip();
   <title>Alquiler Casas Vacacionales • Catálogo</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"  />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/styles.css?v=<?php echo time(); ?>" />
 </head>
 <body class="bg-light">
   <?php include("menu.php"); ?>
@@ -40,7 +40,7 @@ $casasVip = $casaObj->getCasasVip();
           </p>
         </div>
         <div class="col-lg-5">
-          <div class="card filters-card shadow-sm" style="border-radius: 12px;">
+          <div class="card filters-card shadow-sm">
             <div class="card-body">
               <form class="filters">
                 <div class="row g-2">
@@ -130,7 +130,7 @@ $casasVip = $casaObj->getCasasVip();
 
     <!-- Grupo 2: Todas las casas -->
     <section class="section-group" role="region" aria-labelledby="todas-title">
-      <h2 id="todas-title" class="mb-4 text-center fw-bold" style="color: #4f46e5; font-size: 1.8rem;"><i class="bi bi-house"></i> Todas las Viviendas</h2>
+      <h2 id="todas-title" class="mb-4 text-center fw-bold section-subtitle"><i class="bi bi-house"></i> Todas las Viviendas</h2>
       <div class="row row-cols-1 row-cols-md-3 g-4">
         <?php foreach ($casas as $casa) : ?>
           <div class="col">
@@ -139,7 +139,7 @@ $casasVip = $casaObj->getCasasVip();
                 <img src="./imagenes/<?= htmlspecialchars($casa['imagen_principal']) ?>" class="card-img-top" alt="<?= htmlspecialchars($casa['nombre']) ?>">
               </div>
               <div class="card-body">
-                <h5 class="card-title fw-bold" style="color: #4f46e5;"><?= htmlspecialchars($casa['nombre']) ?></h5>
+                <h5 class="card-title fw-bold"><?= htmlspecialchars($casa['nombre']) ?></h5>
                 <p class="card-text mb-1"><strong><i class="bi bi-geo"></i> Provincia:</strong> <?= htmlspecialchars($casa['provincia']) ?></p>
                 <p class="card-text mb-1"><strong><i class="bi bi-geo-alt"></i> Ciudad:</strong> <?= htmlspecialchars($casa['ciudad']) ?></p>
                 <p class="card-text mb-1"><i class="bi bi-person-standing"></i> Capacidad: <strong><?= $casa['capacidad'] ?></strong> pers. · <span class="text-success fw-600">✓ Disponible</span></p>
