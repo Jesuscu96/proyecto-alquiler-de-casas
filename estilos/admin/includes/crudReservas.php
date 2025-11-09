@@ -212,8 +212,47 @@ class Reservas {
 
         $db->closeConnection($conn);
     }
+    public function getTotalReservas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_reservas 
+                FROM reservas";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_reservas'] : 0;
+    }
 
 
+    public function getCantidadReservasConfirmadas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_confirmadas 
+                FROM reservas 
+                WHERE estado = 'confirmada'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_confirmadas'] : 0;
+    }
+
+    public function getCantidadReservasCanceladas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_canceladas 
+                FROM reservas 
+                WHERE estado = 'cancelada'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_canceladas'] : 0;
+    }
 
 
     

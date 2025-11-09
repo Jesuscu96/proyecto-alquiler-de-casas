@@ -46,6 +46,20 @@ class Casas {
         $db->closeConnection($conn);
         return $result ? $result->fetch_assoc()['cantidad_casas'] : 0;
     }
+    public function getCantidadCasasVip() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_casa) AS cantidad_vip 
+                FROM casas_vacacionales 
+                WHERE precio_noche > 2000";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['cantidad_vip'] : 0;
+    }
+
     public function getCasasVip() {
         $db = new Connection();
         $conn = $db->getConnection();
@@ -70,6 +84,18 @@ class Casas {
         
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
+    public function getPrecioPromedioCasas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT AVG(precio_noche) AS precio_promedio 
+                FROM casas_vacacionales";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? round($result->fetch_assoc()['precio_promedio'], 2) : 0;
+    }
     public function getCasaById($id) {
         $db = new Connection();
         $conn = $db->getConnection();
@@ -92,6 +118,72 @@ class Casas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
     }
+    public function getCasasByIdUsuario($id_usuario) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT c.*, com.nombre AS comunidad, p.nombre AS provincia, 
+        ci.nombre AS ciudad
+        FROM casas_vacacionales c
+        LEFT JOIN comunidades com ON com.id_comunidad = c.id_comunidad
+        LEFT JOIN provincias p ON p.id_provincia = c.id_provincia
+        LEFT JOIN ciudades ci ON ci.id_ciudad = c.id_ciudad
+        WHERE c.id_propietario = ?";
+                
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $db->closeConnection($conn);
+        //cuando devuelve un solo resultado
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+    public function getCantidadCasasByUsuario($id_usuario) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_casa) AS total_casas
+                FROM casas_vacacionales
+                WHERE id_propietario = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_casas'] : 0;
+    }
+
+    public function insertarImagen($id_casa, $url) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+
+        $sql = "INSERT INTO imagenes (id_casa, url) VALUES (?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $id_casa, $url);
+        $stmt->execute();
+
+        $db->closeConnection($conn);
+    }
+
+    public function getImagenesByCasa($id_casa) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT * FROM `imagenes` WHERE id_casa = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_casa);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $db->closeConnection($conn);
+        //cuando devuelve un solo resultado
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
     /* public function insertarCasa($id_propietario, $id_comunidad, $id_provincia, $id_ciudad, 
         $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas) {
 
@@ -110,6 +202,7 @@ class Casas {
         $stmt->execute();
         $db->closeConnection($conn);
     } */
+    
     public function insertarCasa(
     $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
     $nombre, $capacidad, $precio_noche,
@@ -157,7 +250,9 @@ class Casas {
             $tiene_secador_pelo, $imagen_principal);
 
         $stmt->execute();
+        $id_casa = $conn->insert_id; //H
         $db->closeConnection($conn);
+        return $id_casa;
     }
 
 
@@ -234,6 +329,17 @@ class Casas {
         $conn = $db->getConnection();
         
         $sql = "DELETE FROM casas_vacacionales WHERE id_casa = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        $db->closeConnection($conn);
+    }
+    public function eliminarImagenes($id) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "DELETE FROM imagenes WHERE id_casa = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();

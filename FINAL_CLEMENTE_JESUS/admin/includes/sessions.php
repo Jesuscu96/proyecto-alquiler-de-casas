@@ -21,19 +21,23 @@ class Sessions {
 
         return null;
     }
-    
+    private function ensureSessionStarted() {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+    }
     public function crearSesion($usuario) {
-        session_start();
+        $this->ensureSessionStarted();
         $_SESSION['usuario'] = $usuario;
     }
     
     public function comprobarSesion() {
-        session_start();
+        $this->ensureSessionStarted();
         return isset($_SESSION['usuario']);
     }
     
     public function cerrarSesion() {
-        session_start();
+        $this->ensureSessionStarted();
         session_destroy();
     }
     

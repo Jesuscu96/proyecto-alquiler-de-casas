@@ -1,66 +1,87 @@
 <?php
+session_start();
 require_once "./admin/includes/sessions.php";
 $sesion = new Sessions();
-$error = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_POST['username'];
-    $clave = $_POST['password'];
-    $datos = $sesion->comprobarCredenciales($usuario, $clave);
-    
+
+if ($sesion->comprobarSesion()) {
+  header("Location: " . (in_array($_SESSION['usuario']['rol'], ['superAdmin','admin']) ? "./admin/index.php" : "./index.php"));
+  exit();
+}
+
+$errorLogin = '';
+$usuario = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $usuario  = trim($_POST['usuario'] ?? '');
+  $password = trim($_POST['password'] ?? '');
+
+  $erroresUsuario = $usuario === '' ? "El usuario es obligatorio." : '';
+  $erroresPassword = $password === '' ? "La contraseña es obligatoria." : '';
+
+  if ($erroresUsuario === '' && $erroresPassword === '') {
+    $datos = $sesion->comprobarCredenciales($usuario, $password);
     if ($datos) {
-        $sesion->crearSesion($datos);
-        if($_SESSION['usuario']['rol'] === ("superAdmin" || "admin")) {
-          header("Location: ./admin/index.php");
-          exit();
-        }elseif ($_SESSION['usuario']['rol'] === "cliente") {
-          header("Location: ./index.php");
-          exit();
-        }
-        
+      $sesion->crearSesion($datos);
+      header("Location: " . (in_array($_SESSION['usuario']['rol'], ['superAdmin','admin']) ? "./admin/index.php" : "./index.php"));
+      exit();
     } else {
-        $error = "Usuario o contraseña incorrectos";
+      $errorLogin = "Usuario o contraseña incorrectos.";
     }
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login • VacacionalPlus</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iniciar sesión - ApartaHome</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="./css/styles.css?v=<?php echo time(); ?>" />
 </head>
-<body class="bg-light">
-  <div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-      <div class="col-md-6">
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white text-center">
-            <h3>Iniciar Sesión</h3>
-          </div>
-          <?php if ($error): ?>
-            <div class="alert alert-danger"><?= $error ?></div>
-          <?php endif; ?>
-          <div class="card-body">
-            <form action="login.php" method="POST">
-              <div class="mb-3">
-                <label for="username" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" id="username" name="username"  required>
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Entrar</button>
-            </form>
-            <div class="text-center mt-3">
-              <a href="registro.php" class="text-decoration-none">¿No tienes cuenta? Regístrate</a>
-            </div>
-          </div>
+<body>
+  <?php include("menu.php"); ?>
+
+  <div class="main-container">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="form-logo" style="color: var(--secondary);">
+          <i class="bi bi-person-fill-lock bi-secondary" aria-hidden="true"></i>
         </div>
+        <h1 class="form-title">Iniciar sesión</h1>
+        <p class="form-subtitle">Accede a tu cuenta de ApartaHome</p>
       </div>
+
+      <?php if ($errorLogin): ?>
+        <div class="alert alert-error"><?= $errorLogin ?></div>
+      <?php endif; ?>
+
+      <form method="POST">
+        <div class="form-group mb-3">
+          <label class="form-label">Usuario</label>
+          <input type="text" name="usuario" class="form-input" value="<?= htmlspecialchars($usuario) ?>" placeholder="Ingresa tu usuario" />
+          <?php if (!empty($erroresUsuario)): ?>
+            <div class="form-error"><?= $erroresUsuario ?></div>
+          <?php endif; ?>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label">Contraseña</label>
+          <input type="password" name="password" class="form-input" placeholder="Ingresa tu contraseña" />
+          <?php if (!empty($erroresPassword)): ?>
+            <div class="form-error"><?= $erroresPassword ?></div>
+          <?php endif; ?>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">Iniciar sesión</button>
+      </form>
+
+      <p class="text-center mt-4 text-muted">
+        ¿No tienes cuenta? <a href="registro.php" class="link-text">Regístrate aquí</a>
+      </p>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <?php include("footer.php"); ?>
 </body>
 </html>

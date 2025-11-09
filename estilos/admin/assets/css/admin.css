@@ -103,6 +103,9 @@ body {
 .stat-card.cantidad {
     border-left-color: var(--tertiary);
 }
+.stat-card.cancel {
+    border-left-color: var(--danger);
+}
 
 .icon-primary {
   color: var(--primary);
@@ -183,48 +186,7 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(79, 209, 197, 0.15);
 }
 
-/* ============================================
-   MODAL
-   ============================================ */
 
-.modal-header {
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-    color: white;
-    border: none;
-}
-
-.modal-header .btn-close {
-    filter: brightness(0) invert(1);
-}
-
-.modal-title {
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.modal-body {
-    padding: 2rem;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.modal-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-    background: var(--secondary);
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-}
 
 /* ============================================
    FORMULARIO
@@ -519,6 +481,7 @@ h6 {
 .pagination .page-item.active .page-link {
     background-color: var(--primary);
     border-color: var(--primary);
+    color: white;
 }
 
 /* ============================================

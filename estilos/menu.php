@@ -15,7 +15,12 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
       <li>
         <a href="./index.php" class="navbar-link <?= $paginaActual === 'index.php' ? 'active' : ''; ?>">Inicio</a>
       </li>
-  <?php if ($sesion->comprobarSesion()) : ?>
+<?php if ($sesion->comprobarSesion() && in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) { ?>
+      <li>
+        <a href="./admin/index.php" class="navbar-link <?= $paginaActual === './admin/index.php' ? 'active' : ''; ?>"> Panel de Administración</a>
+      </li>
+<?php } ?>
+<?php if ($sesion->comprobarSesion()) : ?>
       <li>
         <a href="./añadircasa.php" class="navbar-link <?= $paginaActual === 'añadircasa.php' ? 'active' : ''; ?>"><i class="bi bi-house-gear-fill"></i></a>
       </li>
@@ -23,7 +28,9 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
         <a href="./admin/includes/logout.php" class="navbar-link <?= $paginaActual === './admin/includes/logout.php' ? 'active' : ''; ?>" ><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
         <span class="text-white me-3"><i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['usuario']['username']) ?></span>
       </li>
-  <?php else : ?>
+
+  
+<?php else : ?>
       <li>
         <a href="./login.php" class="navbar-link <?= $paginaActual === 'login.php' ? 'active' : ''; ?>">Iniciar sesión</a>
       </li>

@@ -34,6 +34,29 @@ class Ubicacion {
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
+    public function getProvinciasByComunidad($id_comunidad) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        $sql = "SELECT * FROM provincias WHERE id_comunidad = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_comunidad);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $db->closeConnection($conn);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    public function getCiudadesByProvincia($id_provincia) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        $sql = "SELECT * FROM ciudades WHERE id_provincia = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_provincia);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $db->closeConnection($conn);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 
 
     

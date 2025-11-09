@@ -46,6 +46,20 @@ class Casas {
         $db->closeConnection($conn);
         return $result ? $result->fetch_assoc()['cantidad_casas'] : 0;
     }
+    public function getCantidadCasasVip() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_casa) AS cantidad_vip 
+                FROM casas_vacacionales 
+                WHERE precio_noche > 2000";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['cantidad_vip'] : 0;
+    }
+
     public function getCasasVip() {
         $db = new Connection();
         $conn = $db->getConnection();
@@ -69,6 +83,18 @@ class Casas {
         $db->closeConnection($conn);
         
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+    public function getPrecioPromedioCasas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT AVG(precio_noche) AS precio_promedio 
+                FROM casas_vacacionales";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? round($result->fetch_assoc()['precio_promedio'], 2) : 0;
     }
     public function getCasaById($id) {
         $db = new Connection();
@@ -113,6 +139,24 @@ class Casas {
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
+    public function getCantidadCasasByUsuario($id_usuario) {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_casa) AS total_casas
+                FROM casas_vacacionales
+                WHERE id_propietario = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_casas'] : 0;
+    }
+
     public function insertarImagen($id_casa, $url) {
         $db = new Connection();
         $conn = $db->getConnection();

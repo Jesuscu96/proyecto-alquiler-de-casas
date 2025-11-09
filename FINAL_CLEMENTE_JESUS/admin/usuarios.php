@@ -2,7 +2,7 @@
 require_once "./includes/crudUsuarios.php";
 require_once "./includes/sessions.php";
 $sesion = new Sessions();
-if (!$sesion->comprobarSesion()) {
+if (!$sesion->comprobarSesion() || !in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) {
     header("Location: ../login.php");
     exit();
 }
@@ -10,6 +10,7 @@ $usuarioObj = new Usuarios();
 
 // Obtener datos
 $usuarios = $usuarioObj->getAll();
+// Calcular estadísticas
 $cantidadUsuarios = $usuarioObj->getCantidadUsuarios();
 $cantidadUsuariosCliente = $usuarioObj->getCantidadUsuariosCliente();
 $cantidadUsuariosAdmin = $usuarioObj->getCantidadUsuariosAdmin();
@@ -23,21 +24,11 @@ $id = $_GET['id'] ?? null;
 
 
 // Paginación
-/* $pagina = (int)($_GET['pagina'] ?? 1);
-$por_pagina = 8;
-$total_usuarios = count($usuarios);
-$total_paginas = ceil($total_usuarios / $por_pagina);
+$pagina = (int)($_GET['pagina'] ?? 1);
+$por_pagina = 6;
+$total_paginas = ceil($cantidadUsuarios / $por_pagina);
 $inicio = ($pagina - 1) * $por_pagina;
-$usuarios = array_slice($usuarios, $inicio, $por_pagina);
- */
-
-// Calcular estadísticas
-/* $usuarios_vip = array_filter($todasLasusuarios, function($usuario) {
-    return $usuario['precio_noche'] >= 1000 && $usuario['tiene_adaptacion_discapacitados'];
-}); */
-//$total_usuarios_todos = count($todasLasusuarios);
-//$total_usuarios_vip = count($usuarios_vip);
-//$precio_promedio = !empty($todasLasusuarios) ? array_sum(array_column($todasLasusuarios, 'precio_noche')) / $total_usuarios_todos : 0;
+$usuarios_pagina = array_slice($usuarios, $inicio, $por_pagina);
 
 // Datos por defecto del formulario
 $datos_usuario = [
@@ -144,19 +135,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
         } catch (Exception $e) {
             $errores[] = "Error: " . $e->getMessage();
         }
-    } /* else {
-        // Si hay errores, actualizar $datosUsuario con los valores POST para mantenerlos en el formulario
-        $datosUsuario = [
-            'username' => $username,
-            'nombre' => $nombre,
-            'apellidos' => $apellidos,
-            'edad' => $edad,
-            'email' => $email,
-            'password' => '', // No mostrar contraseña
-            'rol' => $rol,
-            'telefono' => $telefono
-        ];
-    } */
+    } 
 
 }
 ?>
@@ -168,7 +147,8 @@ if ($accion === 'crear' || $accion === 'editarPass') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="./assets/css/admin.css">
 </head>
 <body>
@@ -198,7 +178,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                 <span class="stat-icon"><i class="bi bi-person-fill icon-tertiary fs-2"></i></span>
                 <h3><?= $cantidadUsuariosSuperAdmin ?></h3>
                 <p><i class="bi bi-person-fill icon-tertiary fs-2"></i> Total de usuarios super admin</p>
-            </div>
+            </div>  
         </div>
 
         <?php if ($accion === 'crear'): ?>
@@ -213,7 +193,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                         <div class="alert alert-danger">
-                            <strong>⚠️Errores encontrados:</strong>
+                            <strong><i class="bi bi-exclamation-triangle-fill"></i>Errores encontrados:</strong>
                             <ul class="mb-0">
                                 <?php foreach ($errores as $error): ?>
                                     <li><?= htmlspecialchars($error) ?></li>
@@ -335,7 +315,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                         <div class="alert alert-danger">
-                            <strong>⚠️Errores encontrados:</strong>
+                            <strong><i class="bi bi-exclamation-triangle-fill"></i>Errores encontrados:</strong>
                             <ul class="mb-0">
                                 <?php foreach ($errores as $error): ?>
                                     <li><?= htmlspecialchars($error) ?></li>
@@ -423,7 +403,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                             
                             <div class="col-md-6">
                                 <label class="form-label">Dirección de correo electronico *</label>
-                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($datos_usuario['email']) ?>">
+                                <input type="email" name="email" class="form-control" value="<?=htmlspecialchars($datos_usuario['email']) ?>">
                                 <?php if (isset($erroresEmail) && !empty($erroresEmail)): ?>
                                     <div class="text-danger small mt-1"><?= $erroresEmail ?></div>
                                 <?php endif; ?>
@@ -451,7 +431,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                         <div class="alert alert-danger">
-                            <strong>⚠️Errores encontrados:</strong>
+                            <strong><i class="bi bi-exclamation-triangle-fill"></i>Errores encontrados:</strong>
                             <ul class="mb-0">
                                 <?php foreach ($errores as $error): ?>
                                     <li><?= htmlspecialchars($error) ?></li>
@@ -464,7 +444,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                         <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                             <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                                 <div class="alert alert-danger">
-                                    <strong>⚠️Errores encontrados:</strong>
+                                    <strong><i class="bi bi-exclamation-triangle-fill"></i>Errores encontrados:</strong>
                                     <ul class="mb-0">
                                         <?php foreach ($errores as $error): ?>
                                             <li><?= htmlspecialchars($error) ?></li>
@@ -506,9 +486,6 @@ if ($accion === 'crear' || $accion === 'editarPass') {
             </div>
 
         <?php else: ?>
-            <!-- TABLA Y FILTROS (visible solo cuando NO hay accion) -->
-            
-            <!-- Filtros -->
            
 
             <!-- Botón Añadir -->
@@ -533,59 +510,52 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($usuarios)): ?>
+                        
+                        <?php foreach ($usuarios_pagina as $usuario): ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                    <p class="mt-2">No se encontraron usuarios con los filtros aplicados.</p>
+                                <td><?= htmlspecialchars($usuario['username']) ?></td>
+                                <td><?= htmlspecialchars($usuario['nombre']) ?></td>
+                                <td><?= htmlspecialchars($usuario['apellidos']) ?></td>
+                                <td><?= htmlspecialchars($usuario['edad']) ?></td>
+                                <td><?= htmlspecialchars($usuario['email']) ?></td>
+                                <td><?= htmlspecialchars($usuario['rol']) ?></td>
+                                <td><?= htmlspecialchars($usuario['telefono']) ?></td>                
+                                <td>
+                                    <a href="?accion=editar&id=<?= $usuario['id_usuario'] ?>" class="btn btn-warning btn-action">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <?php if (( ($_SESSION['usuario']['rol'] === "admin" && $usuario['rol'] !== "superAdmin"  || 
+                                    $_SESSION['usuario']['rol'] === "superAdmin")) || ( $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
+                                        <a href="usuarios.php?accion=editarPass&id=<?=$usuario['id_usuario']?>" class="btn btn-outline-dark btn-action" >
+                                        <i class="bi bi-key"></i> Editar Pass
+                                        </a>
+                                    <?php } ?>
+                                    
+                                    <?php if (($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && ($_SESSION['usuario']['rol'] === "admin" || 
+                                    $_SESSION['usuario']['rol'] === "superAdmin")) || ($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
+                                        <a href="?accion=eliminar&id=<?= $usuario['id_usuario'] ?>" 
+                                        class="btn btn-danger btn-action"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.');">
+                                            <i class="bi bi-trash-fill"></i> Eliminar
+                                        </a>
+                                    <?php } ?>
+
                                 </td>
                             </tr>
-                        <?php else: ?>
-                            <?php foreach ($usuarios as $usuario): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($usuario['username']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['nombre']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['apellidos']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['edad']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['email']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['rol']) ?></td>
-                                    <td><?= htmlspecialchars($usuario['telefono']) ?></td>                
-                                    <td>
-                                        <a href="?accion=editar&id=<?= $usuario['id_usuario'] ?>" class="btn btn-warning btn-action">
-                                            <i class="bi bi-pencil-square"></i> Editar
-                                        </a>
-                                        <?php if (( ($_SESSION['usuario']['rol'] === "admin" && $usuario['rol'] !== "superAdmin"  || 
-                                        $_SESSION['usuario']['rol'] === "superAdmin")) || ( $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
-                                            <a href="usuarios.php?accion=editarPass&id=<?=$usuario['id_usuario']?>" class="btn btn-outline-dark btn-action" >
-                                            <i class="bi bi-key"></i> Editar Pass
-                                            </a>
-                                        <?php } ?>
-                                        
-                                        <?php if (($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && ($_SESSION['usuario']['rol'] === "admin" || 
-                                        $_SESSION['usuario']['rol'] === "superAdmin")) || ($_SESSION['usuario']['id_usuario'] !== (int)$usuario['id_usuario'] && $_SESSION['usuario']['rol'] === "superAdmin")) { ?>
-                                            <a href="?accion=eliminar&id=<?= $usuario['id_usuario'] ?>" 
-                                            class="btn btn-danger btn-action"
-                                            onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.');">
-                                                <i class="bi bi-trash-fill"></i> Eliminar
-                                            </a>
-                                        <?php } ?>
-
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
+                        
                     </tbody>
                 </table>
             </div>
 
             <!-- Paginación -->
-            <?php /*hay que borrar esta apertura y cierre de php 
+            <?php
             if ($total_paginas > 1): ?>
                 <nav>
                     <ul class="pagination">
                         <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                             <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
-                                <a class="page-link" href="?pagina=<?= $i ?>&provincia=<?= $filtro_provincia ?>&ciudad=<?= $filtro_ciudad ?>&capacidad=<?= $filtro_usuarios ?>&precio=<?= $filtro_precio ?>">
+                                <a class="page-link" href="?pagina=<?= $i ?>">
                                     <?= $i ?>
                                 </a>
                             </li>
@@ -593,7 +563,7 @@ if ($accion === 'crear' || $accion === 'editarPass') {
                     </ul>
                 </nav>
             <?php endif; ?>; 
-            */ ?>
+           
 
 
         <?php endif; ?>

@@ -424,3 +424,83 @@ body {
   .form-container { padding: 1rem; max-width: 100%; }
   .btn { width: 100%; justify-content: center; }
 }
+/* ============================================
+   PAGINACIÓN
+   ============================================ */
+
+.pagination {
+    margin-top: 2rem;
+    justify-content: center;
+}
+
+.pagination .page-link {
+    color: var(--primary);
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    margin: 0 0.25rem;
+    transition: all 0.3s;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--secondary);
+    color: white;
+    border-color: var(--secondary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* ==================================================
+   Estilos específicos para el panel de administración
+   Se aplican cuando el <body> tiene la clase .admin-page
+   ================================================== */
+.admin-page .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+}
+.admin-page .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 5px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.admin-page .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%; transform: translate(30px, -30px);
+}
+.admin-page .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+.admin-page .stat-card.total { border-left-color: var(--primary); }
+.admin-page .stat-card.vip { border-left-color: var(--secondary); }
+.admin-page .stat-card.precio { border-left-color: var(--tertiary); }
+.admin-page .stat-card h3 { font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: .5rem; position: relative; z-index: 1; }
+.admin-page .stat-card p { color: var(--text-secondary); font-weight: 500; position: relative; z-index: 1; display: flex; align-items: center; gap: .5rem; font-size: .95rem; }
+.admin-page .stat-icon { font-size: 2rem; position: absolute; top: 1rem; right: 1.5rem; opacity: 0.08; z-index: 0; }
+
+/* Buttons usados en panel */
+.admin-page .btn-warning { background: var(--secondary); color: #111; border: none; font-weight: 600; }
+.admin-page .btn-warning:hover { background: #f6b21a; }
+
+/* Navbar admin simplificado (usad por los includes del backend) */
+.admin-page .admin-navbar { background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%); }
+.admin-page .admin-navbar .navbar-brand { color: #fff; font-weight: 700; }
+.admin-page .admin-navbar .nav-link { color: rgba(255,255,255,.9); }
+.admin-page .admin-navbar .nav-link.active { color: var(--secondary); }
+
+/* Footer admin */
+.admin-page .site-footer { background: var(--menu-gradient-start); color: #000000; }
+
+
+

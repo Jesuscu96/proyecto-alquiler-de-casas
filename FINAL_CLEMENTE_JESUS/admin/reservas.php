@@ -1,202 +1,108 @@
 <?php
-require_once "./includes/crudCasas.php";
-require_once "./includes/crudUbicacion.php";
-require_once "./includes/crudUsuarios.php";
+require_once "./includes/crudReservas.php";
 require_once "./includes/sessions.php";
 $sesion = new Sessions();
-if (!$sesion->comprobarSesion()) {
+if (!$sesion->comprobarSesion() || !in_array($_SESSION['usuario']['rol'], ["admin", "superAdmin"])) {
     header("Location: ../login.php");
     exit();
 }
 
-$casaObj = new Casas();
-$ubicacionObj = new Ubicacion();
-$usuariosObj = new Usuarios();
+$reservaObj = new Reservas();
 
 // Obtener datos
-$todasLasCasas = $casaObj->getAll();
-$comunidades = $ubicacionObj->getAllComunidades();
-$provincias = $ubicacionObj->getAllProvincias();
-$ciudades = $ubicacionObj->getAllCiudades();
-$propietarios = $usuariosObj->getAll();
+$reservas = $reservaObj->getAll();
 
 // Parámetros de acción
 $accion = $_GET['accion'] ?? null;
 $id = $_GET['id'] ?? null;
 
-// Filtros
-$filtro_provincia = $_GET['provincia'] ?? '';
-$filtro_ciudad = $_GET['ciudad'] ?? '';
-$filtro_capacidad = (int)($_GET['capacidad'] ?? 0);
-$filtro_precio = (float)($_GET['precio'] ?? 999999);
+// Calcular estadísticas
+$totalReservas = $reservaObj->getTotalReservas();
+$reservasConfirmadas = $reservaObj->getCantidadReservasConfirmadas();
+$reservasCanceladas = $reservaObj->getCantidadReservasCanceladas();
 
-// Aplicar filtros
-$casas = array_filter($todasLasCasas, function($casa) {
-    global $filtro_provincia, $filtro_ciudad, $filtro_capacidad, $filtro_precio;
-    if ($filtro_provincia && $casa['id_provincia'] != $filtro_provincia) return false;
-    if ($filtro_ciudad && $casa['id_ciudad'] != $filtro_ciudad) return false;
-    if ($casa['capacidad'] < $filtro_capacidad) return false;
-    if ($casa['precio_noche'] > $filtro_precio) return false;
-    return true;
-});
-
-$casas = array_values($casas);
 
 // Paginación
 $pagina = (int)($_GET['pagina'] ?? 1);
-$por_pagina = 8;
-$total_casas = count($casas);
-$total_paginas = ceil($total_casas / $por_pagina);
+$por_pagina = 6;
+$total_paginas = ceil($totalReservas / $por_pagina);
 $inicio = ($pagina - 1) * $por_pagina;
-$casas_pagina = array_slice($casas, $inicio, $por_pagina);
+$reservas_pagina = array_slice($reservas, $inicio, $por_pagina);
 
-// Calcular estadísticas
-$casas_vip = array_filter($todasLasCasas, function($casa) {
-    return $casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados'];
-});
-$total_casas_todos = count($todasLasCasas);
-$total_casas_vip = count($casas_vip);
-$precio_promedio = !empty($todasLasCasas) ? array_sum(array_column($todasLasCasas, 'precio_noche')) / $total_casas_todos : 0;
+
+
+
+
 
 // Datos por defecto del formulario
-$datos_casa = [
-    'id_propietario' => '',
-    'id_comunidad' => '',
-    'id_provincia' => '',
-    'id_ciudad' => '',
-    'nombre' => '',
-    'capacidad' => 1,
-    'precio_noche' => 0,
-    'num_banos' => 1,
-    'num_cocinas' => 1,
-    'num_hab_individuales' => 0,
-    'num_hab_familiares' => 0,
-    'num_aparcamientos' => 0,
-    'num_lavadora' => 0,
-    'num_secadora' => 0,
-    'num_lavavajillas' => 0,
-    'num_horno' => 0,
-    'num_microondas' => 0,
-    'num_nevera' => 1,
-    'num_congelador' => 0,
-    'tiene_wifi' => 0,
-    'num_ascensores' => 0,
-    'tiene_calefaccion' => 0,
-    'tiene_aire_acondicionado' => 0,
-    'tiene_piscina' => 0,
-    'tiene_banera' => 0,
-    'tiene_barbacoa' => 0,
-    'tiene_chimenea' => 0,
-    'tiene_adaptacion_discapacitados' => 0,
-    'tiene_jardin' => 0,
-    'tiene_patio' => 0,
-    'tiene_sala_cine' => 0,
-    'tiene_secador_pelo' => 0,
-    'imagen_principal' => ''
+$datos_reserva = [
+    'id_usuario' => '',
+    'id_reserva' => '',
+    'fecha_inicio' => '',
+    'fecha_fin' => '',
+    'total_precio' => '',
+    'estado' => '',
 ];
 
 // Si es editar, cargar datos
 if ($accion === "editar" && $id) {
-    $datos_casa = $casaObj->getCasaById($id);
+    $datos_reserva = $reservaObj->getReservaById($id);
 }
 
 // Procesar eliminación
 if ($accion === 'eliminar' && $id) {
-    $casaObj->eliminarCasa($id);
-    header("Location: casas2.php");
+    $reservaObj->eliminarReserva($id);
+    header("Location: reservas.php");
     exit();
 }
 
 // Procesar formulario POST
 $errores = [];
+$erroresId_usuario = '';
+$erroresId_reserva = '';
+$erroresFecha_inicio = '';
+$erroresFecha_fin = '';
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_propietario = $_POST['id_propietario'] ?? '';
-    $id_comunidad = $_POST['id_comunidad'] ?? '';
-    $id_provincia = $_POST['id_provincia'] ?? '';
-    $id_ciudad = $_POST['id_ciudad'] ?? '';
-    $nombre = trim($_POST['nombre'] ?? '');
-    $capacidad = (int)($_POST['capacidad'] ?? 1);
-    $precio_noche = (float)($_POST['precio_noche'] ?? 0);
-    $num_banos = (int)($_POST['num_banos'] ?? 1);
-    $num_cocinas = (int)($_POST['num_cocinas'] ?? 1);
-    $num_hab_individuales = (int)($_POST['num_hab_individuales'] ?? 0);
-    $num_hab_familiares = (int)($_POST['num_hab_familiares'] ?? 0);
-    $num_aparcamientos = (int)($_POST['num_aparcamientos'] ?? 0);
-    $num_lavadora = (int)($_POST['num_lavadora'] ?? 0);
-    $num_secadora = (int)($_POST['num_secadora'] ?? 0);
-    $num_lavavajillas = (int)($_POST['num_lavavajillas'] ?? 0);
-    $num_horno = (int)($_POST['num_horno'] ?? 0);
-    $num_microondas = (int)($_POST['num_microondas'] ?? 0);
-    $num_nevera = (int)($_POST['num_nevera'] ?? 1);
-    $num_congelador = (int)($_POST['num_congelador'] ?? 0);
-    $tiene_wifi = isset($_POST['tiene_wifi']) ? 1 : 0;
-    $num_ascensores = (int)($_POST['num_ascensores'] ?? 0);
-    $tiene_calefaccion = isset($_POST['tiene_calefaccion']) ? 1 : 0;
-    $tiene_aire_acondicionado = isset($_POST['tiene_aire_acondicionado']) ? 1 : 0;
-    $tiene_piscina = isset($_POST['tiene_piscina']) ? 1 : 0;
-    $tiene_banera = isset($_POST['tiene_banera']) ? 1 : 0;
-    $tiene_barbacoa = isset($_POST['tiene_barbacoa']) ? 1 : 0;
-    $tiene_chimenea = isset($_POST['tiene_chimenea']) ? 1 : 0;
-    $tiene_adaptacion_discapacitados = isset($_POST['tiene_adaptacion_discapacitados']) ? 1 : 0;
-    $tiene_jardin = isset($_POST['tiene_jardin']) ? 1 : 0;
-    $tiene_patio = isset($_POST['tiene_patio']) ? 1 : 0;
-    $tiene_sala_cine = isset($_POST['tiene_sala_cine']) ? 1 : 0;
-    $tiene_secador_pelo = isset($_POST['tiene_secador_pelo']) ? 1 : 0;
+    $id_usuario = trim($_POST['id_usuario'] ?? '');
+    $id_reserva = trim($_POST['id_reserva'] ?? '');
+    $fecha_inicio = trim($_POST['fecha_inicio'] ?? '');
+    $fecha_fin = trim($_POST['fecha_fin'] ?? '');
+    $total_precio = (float)($_POST['total_precio'] ?? '');
+    $estado = trim($_POST['estado'] ?? '');
     
-    // Manejo de imagen
-    $imagen_guardada = $datos_casa['imagen_principal'] ?? '';
-    if (!empty($_FILES['imagen_principal']['name'])) {
-        $carpeta = './imagenes/';
-        $nombreArchivo = basename($_FILES['imagen_principal']['name']);
-        $rutaArchivo = $carpeta . $nombreArchivo;
-        if (move_uploaded_file($_FILES['imagen_principal']['tmp_name'], $rutaArchivo)) {
-            $imagen_guardada = $rutaArchivo;
-        } else {
-            $errores['imagen'] = "Error al subir la imagen.";
-        }
-    }
+   
+    
 
     // Validaciones
-    if (empty($id_propietario)) $errores['id_propietario'] = "Selecciona un propietario.";
-    if (empty($id_comunidad)) $errores['id_comunidad'] = "Selecciona una comunidad.";
-    if (empty($id_provincia)) $errores['id_provincia'] = "Selecciona una provincia.";
-    if (empty($id_ciudad)) $errores['id_ciudad'] = "Selecciona una ciudad.";
-    if (empty($nombre)) $errores['nombre'] = "El nombre no puede estar vacío.";
-    if ($capacidad < 1) $errores['capacidad'] = "La capacidad debe ser al menos 1.";
-    if ($precio_noche < 0) $errores['precio_noche'] = "El precio no puede ser negativo.";
-    if ($num_banos < 1) $errores['num_banos'] = "Debe tener al menos 1 baño.";
-    if ($num_cocinas < 1) $errores['num_cocinas'] = "Debe tener al menos 1 cocina.";
-    if ($num_nevera < 1) $errores['num_nevera'] = "Debe tener al menos 1 nevera.";
+    if ($accion === 'crear' || $accion === 'editar') {
+        if (empty($id_usuario)) $errores['id_usuario'] = "El nombre del cliente no puede estar vacío.";
+        if (empty($id_reserva)) $errores['id_reserva'] = "El de la reserva no puede estar vacío.";
+        if (empty($fecha_inicio)) $errores['fecha_inicio'] = "La fecha de inicio no puede estar vacia.";
+        if (empty($fecha_fin)) $errores['fecha_fin'] = "La fecha del fin no puede estar vacia.";
+        if (empty($total_precio)) $errores['total_precio'] = "El total_precio no puede estar vacío.";
+    }
+    if (!empty($erroresId_usuario)) $errores[] = $erroresId_usuario;
+    if (!empty($erroresId_reserva)) $errores[] = $erroresId_reserva;
+    if (!empty($erroresFecha_inicio)) $errores[] = $erroresFecha_inicio;
+    if (!empty($erroresFecha_fin)) $errores[] = $erroresFecha_fin;
+    if (!empty($erroresTotal_precio)) $errores[] = $erroresTotal_precio;
+    
+    
 
     // Guardar si no hay errores
     if (empty($errores)) {
         try {
             if ($accion === 'crear') {
-                $casaObj->insertarCasa(
-                    $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
-                    $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas,
-                    $num_hab_individuales, $num_hab_familiares, $num_aparcamientos,
-                    $num_lavadora, $num_secadora, $num_lavavajillas, $num_horno,
-                    $num_microondas, $num_nevera, $num_congelador, $tiene_wifi,
-                    $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
-                    $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
-                    $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio,
-                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
-                );
+                $reservaObj->insertarReserva(
+                    $id_usuario, $id_reserva, $fecha_inicio, $fecha_fin,
+                    $total_precio, $estado);
             } elseif ($accion === 'editar' && $id) {
-                $casaObj->actualizarCasa(
-                    $id, $id_propietario, $id_comunidad, $id_provincia, $id_ciudad,
-                    $nombre, $capacidad, $precio_noche, $num_banos, $num_cocinas,
-                    $num_hab_individuales, $num_hab_familiares, $num_aparcamientos,
-                    $num_lavadora, $num_secadora, $num_lavavajillas, $num_horno,
-                    $num_microondas, $num_nevera, $num_congelador, $tiene_wifi,
-                    $num_ascensores, $tiene_calefaccion, $tiene_aire_acondicionado,
-                    $tiene_piscina, $tiene_banera, $tiene_barbacoa, $tiene_chimenea,
-                    $tiene_adaptacion_discapacitados, $tiene_jardin, $tiene_patio,
-                    $tiene_sala_cine, $tiene_secador_pelo, $imagen_guardada
-                );
+                $reservaObj->actualizarReserva(
+                    $id, $id_usuario, $id_reserva, $fecha_inicio, $fecha_fin,
+                    $total_precio, $estado);
             }
-            header("Location: casas2.php");
+            header("Location: reservas.php");
             exit();
         } catch (Exception $e) {
             $errores['general'] = "Error: " . $e->getMessage();
@@ -210,9 +116,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Casas Vacacionales</title>
+    <title>Gestión de reservas Vacacionales</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="./assets/css/admin.css">
 </head>
 <body>
@@ -224,19 +131,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Estadísticas (siempre visibles) -->
         <div class="stats-container">
             <div class="stat-card total">
-                <span class="stat-icon">🏠</span>
-                <h3><?= $total_casas_todos ?></h3>
-                <p><i class="bi bi-house-fill"></i> Total de Casas</p>
-            </div>
-            <div class="stat-card vip">
-                <span class="stat-icon">⭐</span>
-                <h3><?= $total_casas_vip ?></h3>
-                <p><i class="bi bi-star-fill"></i> Casas Premium Accesibles</p>
+                <span class="stat-icon"><i class="bi bi-calendar2-week"></i></span>
+                <h3><?= $totalReservas ?></h3>
+                <p><i class="bi bi-calendar2-week"></i></i> Total de reservas</p>
             </div>
             <div class="stat-card precio">
-                <span class="stat-icon">💰</span>
-                <h3>€<?= number_format($precio_promedio, 0) ?></h3>
-                <p><i class="bi bi-cash-coin"></i> Precio Promedio</p>
+                <span class="stat-icon"><i class="bi bi-check-circle"></i></span>
+                <h3><?= $reservasConfirmadas ?></h3>
+                <p><i class="bi bi-check-circle"></i> Reservas Confirmadas</p>
+            </div>
+            <div class="stat-card cancel">
+                <span class="stat-icon"><i class="bi bi-x-circle"></i></span>
+                <h3><?= $reservasCanceladas ?></h3>
+                <p><i class="bi bi-x-circle"></i></i> Reservas Canceldas</p>
             </div>
         </div>
 
@@ -246,11 +153,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="card-header" style="background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
                     <h4 class="mb-0">
                         <i class="bi bi-<?= $accion === 'crear' ? 'plus-circle' : 'pencil-square' ?>"></i>
-                        <?= $accion === 'crear' ? 'Crear Nueva Casa' : 'Editar Casa' ?>
+                        <?= $accion === 'crear' ? 'Crear Nueva reserva' : 'Editar reserva' ?>
                     </h4>
                 </div>
                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
-                    <?php if (!empty($errores)): ?>
+                    <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errores)): ?>
                         <div class="alert alert-danger">
                             <strong>⚠️ Errores encontrados:</strong>
                             <ul class="mb-0">
@@ -267,243 +174,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <h6><i class="bi bi-info-circle-fill"></i> INFORMACIÓN BÁSICA</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Propietario *</label>
-                                <select name="id_propietario" class="form-select" required>
-                                    <option value="">Seleccionar...</option>
-                                    <?php foreach ($propietarios as $prop): ?>
-                                        <option value="<?= $prop['id_usuario'] ?>" <?= $datos_casa['id_propietario'] == $prop['id_usuario'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($prop['username']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <label class="form-label">Cliente *</label>
+                                <input type="text" name="id_usuario" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_usuario']) ?>">
+                                <?php if (isset($erroresId_usuario) && !empty($erroresId_usuario)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresId_usuario ?></div>
+                                <?php endif; ?> 
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Nombre de la Casa *</label>
-                                <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($datos_casa['nombre']) ?>" required>
-                            </div>
-                        </div>
-
-                        <!-- UBICACIÓN -->
-                        <h6><i class="bi bi-geo-alt-fill"></i> UBICACIÓN</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Comunidad Autónoma *</label>
-                                <select name="id_comunidad" class="form-select" required>
-                                    <option value="">Seleccionar...</option>
-                                    <?php foreach ($comunidades as $com): ?>
-                                        <option value="<?= $com['id_comunidad'] ?>" <?= $datos_casa['id_comunidad'] == $com['id_comunidad'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($com['nombre']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Provincia *</label>
-                                <select name="id_provincia" class="form-select" required>
-                                    <option value="">Seleccionar...</option>
-                                    <?php foreach ($provincias as $prov): ?>
-                                        <option value="<?= $prov['id_provincia'] ?>" <?= $datos_casa['id_provincia'] == $prov['id_provincia'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($prov['nombre']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Ciudad *</label>
-                                <select name="id_ciudad" class="form-select" required>
-                                    <option value="">Seleccionar...</option>
-                                    <?php foreach ($ciudades as $ciudad): ?>
-                                        <option value="<?= $ciudad['id_ciudad'] ?>" <?= $datos_casa['id_ciudad'] == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($ciudad['nombre']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- CAPACIDAD Y PRECIO -->
-                        <h6><i class="bi bi-cash-stack"></i> CAPACIDAD Y PRECIO</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Capacidad (personas) *</label>
-                                <input type="number" name="capacidad" class="form-control" min="1" value="<?= $datos_casa['capacidad'] ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Precio por Noche (€) *</label>
-                                <input type="number" name="precio_noche" class="form-control" step="0.01" min="0" value="<?= $datos_casa['precio_noche'] ?>" required>
-                            </div>
-                        </div>
-
-                        <!-- HABITACIONES Y BAÑOS -->
-                        <h6><i class="bi bi-door-open-fill"></i> HABITACIONES Y BAÑOS</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Baños *</label>
-                                <input type="number" name="num_banos" class="form-control" min="1" value="<?= $datos_casa['num_banos'] ?>" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Cocinas *</label>
-                                <input type="number" name="num_cocinas" class="form-control" min="1" value="<?= $datos_casa['num_cocinas'] ?>" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Hab. Individuales</label>
-                                <input type="number" name="num_hab_individuales" class="form-control" min="0" value="<?= $datos_casa['num_hab_individuales'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Hab. Familiares</label>
-                                <input type="number" name="num_hab_familiares" class="form-control" min="0" value="<?= $datos_casa['num_hab_familiares'] ?>">
-                            </div>
-                        </div>
-
-                        <!-- ELECTRODOMÉSTICOS -->
-                        <h6><i class="bi bi-plug-fill"></i> ELECTRODOMÉSTICOS</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Lavadoras</label>
-                                <input type="number" name="num_lavadora" class="form-control" min="0" value="<?= $datos_casa['num_lavadora'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Secadoras</label>
-                                <input type="number" name="num_secadora" class="form-control" min="0" value="<?= $datos_casa['num_secadora'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Lavavajillas</label>
-                                <input type="number" name="num_lavavajillas" class="form-control" min="0" value="<?= $datos_casa['num_lavavajillas'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Hornos</label>
-                                <input type="number" name="num_horno" class="form-control" min="0" value="<?= $datos_casa['num_horno'] ?>">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Microondas</label>
-                                <input type="number" name="num_microondas" class="form-control" min="0" value="<?= $datos_casa['num_microondas'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Neveras *</label>
-                                <input type="number" name="num_nevera" class="form-control" min="1" value="<?= $datos_casa['num_nevera'] ?>" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Congeladores</label>
-                                <input type="number" name="num_congelador" class="form-control" min="0" value="<?= $datos_casa['num_congelador'] ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Aparcamientos</label>
-                                <input type="number" name="num_aparcamientos" class="form-control" min="0" value="<?= $datos_casa['num_aparcamientos'] ?>">
-                            </div>
-                        </div>
-
-                        <!-- AMENIDADES -->
-                        <h6><i class="bi bi-stars"></i> AMENIDADES Y CARACTERÍSTICAS</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_wifi" class="form-check-input" id="wifi" <?= $datos_casa['tiene_wifi'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="wifi">Wi-Fi</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_calefaccion" class="form-check-input" id="calefaccion" <?= $datos_casa['tiene_calefaccion'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="calefaccion">Calefacción</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_aire_acondicionado" class="form-check-input" id="aire" <?= $datos_casa['tiene_aire_acondicionado'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="aire">Aire Acondicionado</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_piscina" class="form-check-input" id="piscina" <?= $datos_casa['tiene_piscina'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="piscina">Piscina</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_banera" class="form-check-input" id="banera" <?= $datos_casa['tiene_banera'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="banera">Bañera</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_barbacoa" class="form-check-input" id="barbacoa" <?= $datos_casa['tiene_barbacoa'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="barbacoa">Barbacoa</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_chimenea" class="form-check-input" id="chimenea" <?= $datos_casa['tiene_chimenea'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="chimenea">Chimenea</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_adaptacion_discapacitados" class="form-check-input" id="adaptacion" <?= $datos_casa['tiene_adaptacion_discapacitados'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="adaptacion">Adaptación Discapacitados</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_jardin" class="form-check-input" id="jardin" <?= $datos_casa['tiene_jardin'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="jardin">Jardín</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_patio" class="form-check-input" id="patio" <?= $datos_casa['tiene_patio'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="patio">Patio</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_sala_cine" class="form-check-input" id="cine" <?= $datos_casa['tiene_sala_cine'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="cine">Sala de Cine</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input type="checkbox" name="tiene_secador_pelo" class="form-check-input" id="secador" <?= $datos_casa['tiene_secador_pelo'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="secador">Secador de Pelo</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Ascensores</label>
-                                <input type="number" name="num_ascensores" class="form-control" min="0" value="<?= $datos_casa['num_ascensores'] ?>">
-                            </div>
-                        </div>
-
-                        <!-- IMAGEN -->
-                        <h6><i class="bi bi-image-fill"></i> IMAGEN PRINCIPAL</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label class="form-label">Imagen Principal</label>
-                                <input type="file" name="imagen_principal" class="form-control" accept="image/                          *">
-                                <?php if (!empty($datos_casa['imagen_principal'])): ?>
-                                    <small class="text-muted">Imagen actual: <?= htmlspecialchars($datos_casa['imagen_principal']) ?></small>
+                                <label class="form-label"> Nombre de la reservas*</label>
+                                <input type="text" name="id_reserva" class="form-control" value="<?= htmlspecialchars($datos_reserva['id_reserva']) ?>">
+                                <?php if (isset($erroresId_reserva) && !empty($erroresId_reserva)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresId_reserva ?></div>
                                 <?php endif; ?>
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio Total *</label>
+                                <input type="text" name="total_precio" class="form-control" value="<?= htmlspecialchars($datos_reserva['total_precio']) ?>">
+                                <?php if (isset($erroresTotal_precio) && !empty($erroresTotal_precio)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresTotal_precio ?></div>
+                                <?php endif; ?>
+                                
+                            </div>
+                        </div>                   
+
+                        <!-- FECHAS -->
+                        <h6><i class="bi bi-info-circle-fill"></i> FECHAS DE RESERVAS</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Incio Reserva *</label>
+                                
+                                <input type="date" name="fecha_inicio" class="form-control" value="<?= htmlspecialchars($datos_reserva['fecha_inicio']) ?>">
+                                <?php if (isset($erroresFecha_inicio) && !empty($erroresFecha_inicio)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresFecha_inicio ?></div>
+                                <?php endif; ?> 
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Fim Reserva *</label>
+                                
+                                <input type="date" name="fecha_fin" class="form-control" value="<?= htmlspecialchars($datos_reserva['fecha_fin']) ?>">
+                                <?php if (isset($erroresFecha_fin) && !empty($erroresFecha_fin)): ?>
+                                    <div class="text-danger small mt-1"><?= $erroresFecha_fin ?></div>
+                                <?php endif; ?>
+                                
                             </div>
                         </div>
+
+                        
 
                         <!-- BOTONES -->
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="casas2.php" class="btn btn-secondary">
+                            <a href="reservas.php" class="btn btn-secondary">
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear Casa' : 'Actualizar Casa' ?>
+                                <i class="bi bi-save-fill"></i> <?= $accion === 'crear' ? 'Crear reserva' : 'Actualizar Reserva' ?>
                             </button>
                         </div>
                     </form>
@@ -511,53 +236,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
         <?php else: ?>
-            <!-- TABLA Y FILTROS (visible solo cuando NO hay accion) -->
             
-            <!-- Filtros -->
-            <div class="filters-card">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Provincia</label>
-                        <select name="provincia" class="form-select">
-                            <option value="">Todas</option>
-                            <?php foreach ($provincias as $prov): ?>
-                                <option value="<?= $prov['id_provincia'] ?>" <?= $filtro_provincia == $prov['id_provincia'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($prov['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Ciudad</label>
-                        <select name="ciudad" class="form-select">
-                            <option value="">Todas</option>
-                            <?php foreach ($ciudades as $ciudad): ?>
-                                <option value="<?= $ciudad['id_ciudad'] ?>" <?= $filtro_ciudad == $ciudad['id_ciudad'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($ciudad['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Capacidad Mín.</label>
-                        <input type="number" name="capacidad" class="form-control" min="0" value="<?= $filtro_capacidad ?>">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Precio Máx. (€)</label>
-                        <input type="number" name="precio" class="form-control" min="0" value="<?= $filtro_precio != 999999 ? $filtro_precio : '' ?>">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel-fill"></i> Filtrar
-                        </button>
-                    </div>
-                </form>
-            </div>
+          
 
             <!-- Botón Añadir -->
             <div class="mb-3">
                 <a href="?accion=crear" class="btn btn-primary btn-lg">
-                    <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Casa
+                    <i class="bi bi-plus-circle-fill"></i> Añadir Nueva Reserva
                 </a>
             </div>
 
@@ -566,77 +251,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
-                            <th>Ubicación</th>
-                            <th>Precio/Noche</th>
-                            <th>Capacidad</th>
-                            <th>Adaptación</th>
-                            <th>Acciones</th>
+                            <th>Cliente</th>
+                            <th>Nombre Casa</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Precio Total</th>
+                            <th>Estado</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($casas_pagina)): ?>
+                        
+                        <?php foreach ($reservas_pagina as $reserva): ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                                    <p class="mt-2">No se encontraron casas con los filtros aplicados.</p>
+                                <td><?= htmlspecialchars($reserva['usuario']) ?></td>
+                                <td><?= htmlspecialchars($reserva['nombre_casa']) ?></td>
+                                <td><?= htmlspecialchars($reserva['fecha_inicio']) ?></td>
+                                <td><?= htmlspecialchars($reserva['fecha_fin']) ?></td>
+                                <td><?= htmlspecialchars($reserva['total_precio']) ?></td>
+                                <td><?= htmlspecialchars($reserva['estado']) ?></td>
+                                <td>
+                                <?php $estado = htmlspecialchars($reserva['estado']);
+                                    $badgeClass = 'bg-secondary';
+                                    if ($estado === 'confirmada') $badgeClass = 'badge-accesible';
+                                    elseif ($estado === 'cancelada') $badgeClass = 'bg-danger';
+                                ?>
+                                <span class="badge <?= $badgeClass ?>"><?= ucfirst($estado) ?></span>
+                                </td>
+                                
+                                <td>
+                                    <a href="?accion=editar&id=<?= $reserva['id_reserva'] ?>" class="btn btn-warning btn-action">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a href="?accion=eliminar&id=<?= $reserva['id_reserva'] ?>" 
+                                        class="btn btn-danger btn-action"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.');">
+                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                    </a>
                                 </td>
                             </tr>
-                        <?php else: ?>
-                            <?php foreach ($casas_pagina as $casa): ?>
-                                <tr>
-                                    <td>
-                                        <?php if (!empty($casa['imagen_principal'])): ?>
-                                            <img src="<?= htmlspecialchars($casa['imagen_principal']) ?>" alt="Casa" width="50" height="50" style="object-fit: cover;">
-                                        <?php else: ?>
-                                            <span class="text-muted">Sin imagen</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($casa['nombre']) ?></td>
-                                    <td><?= htmlspecialchars($casa['ciudad'] ?? 'N/A') ?></td>
-                                    <td><strong>€<?= number_format($casa['precio_noche'], 2) ?></strong></td>
-                                    <td><?= $casa['capacidad'] ?> pers.</td>
-                                    <td>
-                                        <?php if ($casa['precio_noche'] >= 1000 && $casa['tiene_adaptacion_discapacitados']): ?>
-                                            <span class="badge badge-vip">⭐ VIP Premium Accesible</span>
-                                        <?php elseif ($casa['tiene_adaptacion_discapacitados']): ?>
-                                            <span class="badge badge-accesible">♿ Accesible</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-secondary">Estándar</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="?accion=editar&id=<?= $casa['id_casa'] ?>" class="btn btn-warning btn-action">
-                                            <i class="bi bi-pencil-square"></i> Editar
-                                        </a>
-                                        <a href="?accion=eliminar&id=<?= $casa['id_casa'] ?>" 
-                                           class="btn btn-danger btn-action"
-                                           onclick="return confirm('¿Estás seguro de que deseas eliminar esta casa? Esta acción no se puede deshacer.');">
-                                            <i class="bi bi-trash-fill"></i> Eliminar
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
+                        
                     </tbody>
                 </table>
             </div>
 
             <!-- Paginación -->
-            <?php if ($total_paginas > 1): ?>
+           <?php
+            if ($total_paginas > 1): ?>
                 <nav>
                     <ul class="pagination">
                         <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                             <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
-                                <a class="page-link" href="?pagina=<?= $i ?>&provincia=<?= $filtro_provincia ?>&ciudad=<?= $filtro_ciudad ?>&capacidad=<?= $filtro_capacidad ?>&precio=<?= $filtro_precio ?>">
+                                <a class="page-link" href="?pagina=<?= $i ?>">
                                     <?= $i ?>
                                 </a>
                             </li>
                         <?php endfor; ?>
                     </ul>
                 </nav>
-            <?php endif; ?>
+            <?php endif; ?>;
 
         <?php endif; ?>
 

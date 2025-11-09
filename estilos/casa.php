@@ -84,8 +84,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $precio_total = $dias * $datos_casa['precio_noche'];
 
       $reservasObj->insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $precio_total, 'confirmada');
-      //header("Location: casa?id=" . $id_usuario . ".php");
-      //exit();
+      header("Location: casa?id=" . $id_casa . ".php");
+      exit();
       //para refrescar 
       $todas = $reservasObj->getAll();
       $exitoReserva = "¡Reserva creada exitosamente! Está en estado pendiente.";
@@ -266,11 +266,11 @@ $imagenPrincipal = htmlspecialchars($datos_casa['imagen_principal'] ?? './imagen
             <form method="POST" action="">
               <div class="mb-3">
                 <label class="form-label fw-600">Fecha de entrada</label>
-                <input type="date" name="fecha_inicio" class="form-input" required />
+                <input type="date" name="fecha_inicio" class="form-input" />
               </div>
               <div class="mb-3">
                 <label class="form-label fw-600">Fecha de salida</label>
-                <input type="date" name="fecha_fin" class="form-input" required />
+                <input type="date" name="fecha_fin" class="form-input" />
               </div>
 
               <div class="calendar-info">

@@ -7,6 +7,8 @@
     --secondary: #4fd1c5;
     --tertiary: #501563;
     --accent: #ffd166;
+    /* Variable específica del tema admin para evitar colisiones con otras hojas */
+    --admin-accent: #ffd166;
     --dark: #072d4b;
     --light: #e9f7f6;
     --danger: #f14b4b;
@@ -40,7 +42,10 @@ body {
 .navbar-brand {
     font-weight: 700;
     font-size: 1.5rem;
-    color: var(--accent) !important;
+    /* Usar variable específica para que no tome el valor global definido
+       por otras hojas (por ejemplo `styles.css`) que puedan redefinir
+       --accent */
+    color: var(--admin-accent) !important;
     letter-spacing: 0.5px;
 }
 
@@ -89,7 +94,7 @@ body {
 }
 
 .stat-card.vip {
-    border-left-color: var(--accent);
+    border-left-color: var(--admin-accent);
 }
 
 .stat-card.precio {
@@ -97,6 +102,9 @@ body {
 }
 .stat-card.cantidad {
     border-left-color: var(--tertiary);
+}
+.stat-card.cancel {
+    border-left-color: var(--danger);
 }
 
 .icon-primary {
@@ -112,7 +120,7 @@ body {
 }
 
 .icon-accent {
-  color: var(--accent);
+    color: var(--admin-accent);
 }
 
 .stat-card h3 {
@@ -178,48 +186,7 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(79, 209, 197, 0.15);
 }
 
-/* ============================================
-   MODAL
-   ============================================ */
 
-.modal-header {
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-    color: white;
-    border: none;
-}
-
-.modal-header .btn-close {
-    filter: brightness(0) invert(1);
-}
-
-.modal-title {
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.modal-body {
-    padding: 2rem;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.modal-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-    background: var(--secondary);
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-}
 
 /* ============================================
    FORMULARIO
@@ -313,7 +280,7 @@ h6 {
 }
 
 .btn-warning {
-    background: var(--accent);
+    background: var(--admin-accent);
     color: var(--dark);
     border: none;
     font-weight: 600;
@@ -514,6 +481,7 @@ h6 {
 .pagination .page-item.active .page-link {
     background-color: var(--primary);
     border-color: var(--primary);
+    color: white;
 }
 
 /* ============================================

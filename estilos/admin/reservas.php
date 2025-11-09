@@ -16,20 +16,22 @@ $reservas = $reservaObj->getAll();
 $accion = $_GET['accion'] ?? null;
 $id = $_GET['id'] ?? null;
 
+// Calcular estadísticas
+$totalReservas = $reservaObj->getTotalReservas();
+$reservasConfirmadas = $reservaObj->getCantidadReservasConfirmadas();
+$reservasCanceladas = $reservaObj->getCantidadReservasCanceladas();
 
 
-
- // Paginación
+// Paginación
 $pagina = (int)($_GET['pagina'] ?? 1);
-$por_pagina = 8;
-$total_reservas = count($reservas);
-$total_paginas = ceil($total_reservas / $por_pagina);
+$por_pagina = 6;
+$total_paginas = ceil($totalReservas / $por_pagina);
 $inicio = ($pagina - 1) * $por_pagina;
 $reservas_pagina = array_slice($reservas, $inicio, $por_pagina);
 
-// Calcular estadísticas
 
-$totalReservas = count($reservas);
+
+
 
 
 // Datos por defecto del formulario
@@ -117,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Gestión de reservas Vacacionales</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="./assets/css/admin.css">
 </head>
 <body>
@@ -128,19 +131,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Estadísticas (siempre visibles) -->
         <div class="stats-container">
             <div class="stat-card total">
-                <span class="stat-icon">🏠</span>
+                <span class="stat-icon"><i class="bi bi-calendar2-week"></i></span>
                 <h3><?= $totalReservas ?></h3>
-                <p><i class="bi bi-house-fill"></i> Total de reservas</p>
-            </div>
-            <div class="stat-card vip">
-                <span class="stat-icon">⭐</span>
-                <h3>En desarollo</h3>
-                <p><i class="bi bi-star-fill"></i> reservas Premium Accesibles</p>
+                <p><i class="bi bi-calendar2-week"></i></i> Total de reservas</p>
             </div>
             <div class="stat-card precio">
-                <span class="stat-icon">💰</span>
-                <h3>En desarollo</h3>
-                <p><i class="bi bi-cash-coin"></i> Precio Promedio</p>
+                <span class="stat-icon"><i class="bi bi-check-circle"></i></span>
+                <h3><?= $reservasConfirmadas ?></h3>
+                <p><i class="bi bi-check-circle"></i> Reservas Confirmadas</p>
+            </div>
+            <div class="stat-card cancel">
+                <span class="stat-icon"><i class="bi bi-x-circle"></i></span>
+                <h3><?= $reservasCanceladas ?></h3>
+                <p><i class="bi bi-x-circle"></i></i> Reservas Canceldas</p>
             </div>
         </div>
 
@@ -260,7 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </thead>
                     <tbody>
                         
-                        <?php foreach ($reservas as $reserva): ?>
+                        <?php foreach ($reservas_pagina as $reserva): ?>
                             <tr>
                                 <td><?= htmlspecialchars($reserva['usuario']) ?></td>
                                 <td><?= htmlspecialchars($reserva['nombre_casa']) ?></td>
@@ -268,6 +271,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <td><?= htmlspecialchars($reserva['fecha_fin']) ?></td>
                                 <td><?= htmlspecialchars($reserva['total_precio']) ?></td>
                                 <td><?= htmlspecialchars($reserva['estado']) ?></td>
+                                <td>
+                                <?php $estado = htmlspecialchars($reserva['estado']);
+                                    $badgeClass = 'bg-secondary';
+                                    if ($estado === 'confirmada') $badgeClass = 'badge-accesible';
+                                    elseif ($estado === 'cancelada') $badgeClass = 'bg-danger';
+                                ?>
+                                <span class="badge <?= $badgeClass ?>"><?= ucfirst($estado) ?></span>
+                                </td>
                                 
                                 <td>
                                     <a href="?accion=editar&id=<?= $reserva['id_reserva'] ?>" class="btn btn-warning btn-action">
@@ -287,7 +298,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <!-- Paginación -->
-           
+           <?php
+            if ($total_paginas > 1): ?>
+                <nav>
+                    <ul class="pagination">
+                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                            <li class="page-item <?= $i == $pagina ? 'active' : '' ?>">
+                                <a class="page-link" href="?pagina=<?= $i ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav>
+            <?php endif; ?>;
 
         <?php endif; ?>
 

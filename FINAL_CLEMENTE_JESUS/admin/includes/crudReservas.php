@@ -4,18 +4,18 @@ require_once("database.php");
 
 class Reservas {
    
+    // public function getAll() {
+    //     $db = new Connection();
+    //     $conn = $db->getConnection();
+        
+    //     $sql = "SELECT * FROM reservas";
+        
+    //     $result = $conn->query($sql);
+    //     $db->closeConnection($conn);
+    //     //cuando devuelve un solo resultado
+    //     return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    // }
     public function getAll() {
-        $db = new Connection();
-        $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM reservas";
-        
-        $result = $conn->query($sql);
-        $db->closeConnection($conn);
-        //cuando devuelve un solo resultado
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    }
-    public function getReservasConDetalles() {
         $db = new Connection();
         $conn = $db->getConnection();
 
@@ -45,6 +45,29 @@ class Reservas {
     public function getReservaById($id) {
         $db = new Connection();
         $conn = $db->getConnection();
+
+        $sql = "SELECT r.*, 
+                    u.username AS usuario, 
+                    c.nombre AS nombre_casa
+                FROM reservas r
+                JOIN usuarios u ON u.id_usuario = r.id_usuario
+                JOIN casas_vacacionales c ON c.id_casa = r.id_casa
+                WHERE r.id_reserva = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $db->closeConnection($conn);
+
+        return $result ? $result->fetch_assoc() : [];
+    }
+
+
+    /* public function getReservaById($id) {
+        $db = new Connection();
+        $conn = $db->getConnection();
         
         $sql = "SELECT * FROM reservas WHERE id_reserva = ?";
         
@@ -56,8 +79,8 @@ class Reservas {
         $db->closeConnection($conn);
         //cuando devuelve un solo resultado
         return $result ? $result->fetch_assoc() : [];
-    }
-    public function insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado = 'pendiente') {
+    } */
+    public function insertarReserva($id_usuario, $id_casa, $fecha_inicio, $fecha_fin, $total_precio, $estado) {
         $db = new Connection();
         $conn = $db->getConnection();
 
@@ -189,8 +212,47 @@ class Reservas {
 
         $db->closeConnection($conn);
     }
+    public function getTotalReservas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_reservas 
+                FROM reservas";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_reservas'] : 0;
+    }
 
 
+    public function getCantidadReservasConfirmadas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_confirmadas 
+                FROM reservas 
+                WHERE estado = 'confirmada'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_confirmadas'] : 0;
+    }
+
+    public function getCantidadReservasCanceladas() {
+        $db = new Connection();
+        $conn = $db->getConnection();
+        
+        $sql = "SELECT COUNT(id_reserva) AS total_canceladas 
+                FROM reservas 
+                WHERE estado = 'cancelada'";
+        
+        $result = $conn->query($sql);
+        $db->closeConnection($conn);
+        
+        return $result ? $result->fetch_assoc()['total_canceladas'] : 0;
+    }
 
 
     
