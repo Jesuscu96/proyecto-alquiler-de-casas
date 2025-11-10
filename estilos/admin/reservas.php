@@ -37,7 +37,7 @@ $reservas_pagina = array_slice($reservas, $inicio, $por_pagina);
 // Datos por defecto del formulario
 $datos_reserva = [
     'id_usuario' => '',
-    'id_reserva' => '',
+    'id_casa' => '',
     'fecha_inicio' => '',
     'fecha_fin' => '',
     'total_precio' => '',
@@ -65,7 +65,7 @@ $erroresFecha_fin = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_usuario = trim($_POST['id_usuario'] ?? '');
-    $id_reserva = trim($_POST['id_reserva'] ?? '');
+    $id_casa = trim($_POST['id_casa'] ?? '');
     $fecha_inicio = trim($_POST['fecha_inicio'] ?? '');
     $fecha_fin = trim($_POST['fecha_fin'] ?? '');
     $total_precio = (float)($_POST['total_precio'] ?? '');
@@ -77,13 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validaciones
     if ($accion === 'crear' || $accion === 'editar') {
         if (empty($id_usuario)) $errores['id_usuario'] = "El nombre del cliente no puede estar vacío.";
-        if (empty($id_reserva)) $errores['id_reserva'] = "El de la reserva no puede estar vacío.";
+        if (empty($id_casa)) $errores['id_casa'] = "El de la casa no puede estar vacío.";
         if (empty($fecha_inicio)) $errores['fecha_inicio'] = "La fecha de inicio no puede estar vacia.";
         if (empty($fecha_fin)) $errores['fecha_fin'] = "La fecha del fin no puede estar vacia.";
         if (empty($total_precio)) $errores['total_precio'] = "El total_precio no puede estar vacío.";
     }
     if (!empty($erroresId_usuario)) $errores[] = $erroresId_usuario;
-    if (!empty($erroresId_reserva)) $errores[] = $erroresId_reserva;
+    if (!empty($erroresId_casa)) $errores[] = $erroresId_casa;
     if (!empty($erroresFecha_inicio)) $errores[] = $erroresFecha_inicio;
     if (!empty($erroresFecha_fin)) $errores[] = $erroresFecha_fin;
     if (!empty($erroresTotal_precio)) $errores[] = $erroresTotal_precio;
